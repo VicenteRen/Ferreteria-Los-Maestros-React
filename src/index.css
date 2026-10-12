@@ -1,0 +1,139 @@
+/* ****************************************************************** */
+/* ESTILOS DE GLOBAL.CSS Y CLIENTE.CSS */
+/* ****************************************************************** */
+:root {
+    --color-brand-orange: #ea580c;
+    --color-brand-orange-light: #fb923c;
+    --color-brand-dark: #111827;
+    --color-brand-grey: #374151;
+    --color-brand-steel: #6b7280;
+    --color-brand-muted: #f3f4f6;
+    --color-brand-green: #16a34a;
+    --color-brand-green-light: #dcfce7;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    font-family: "Inter", sans-serif;
+    background-color: var(--color-brand-muted);
+}
+
+/* =========================================
+   Estilos específicos para la página principal
+   ========================================= */
+
+/* Tipografía global */
+.font-inter {
+    font-family: "Inter", sans-serif;
+}
+
+/* --- Colores aplicados mediante variables --- */
+.bg-brand-dark {
+    background-color: var(--color-brand-dark);
+}
+
+.bg-brand-muted {
+    background-color: var(--color-brand-muted);
+}
+
+.bg-brand-green {
+    background-color: var(--color-brand-green);
+}
+
+.text-brand-dark {
+    color: var(--color-brand-dark);
+}
+
+.text-brand-orange {
+    color: var(--color-brand-orange);
+}
+
+/* --- Botones y Logos --- */
+.logo-box {
+    background-color: var(--color-brand-orange);
+    color: white;
+    padding: 4px 8px;
+    margin-right: 5px;
+    border-radius: 4px;
+}
+
+.btn-orange {
+    background-color: var(--color-brand-orange);
+    color: white;
+    border: none;
+    transition: background-color 0.3s ease;
+}
+
+.btn-orange:hover {
+    background-color: var(--color-brand-orange-light);
+    color: white;
+}
+
+.btn-brand-dark {
+    background-color: var(--color-brand-dark);
+    color: white;
+    border: none;
+    transition: background-color 0.3s ease;
+}
+
+.btn-brand-dark:hover {
+    background-color: var(--color-brand-orange);
+    color: white;
+}
+
+/* Fondo de Iconos */
+.bg-icon-orange {
+    background-color: var(--color-brand-orange);
+}
+
+/* --- Secciones principales --- */
+.hero-section {
+    background-color: var(--color-brand-grey);
+    padding: 80px 0;
+    /* Si quieres poner una imagen de fondo, se haría aquí */
+    background-image:
+        linear-gradient(rgba(13, 27, 42, 0.85), rgba(13, 27, 42, 0.85)),
+        url("../img/hero-ferreteria.avif");
+    background-size: cover;
+    background-position: center;
+}
+
+.footer-custom {
+    background-color: #0b111a;
+}
+
+/* --- Tarjetas (Productos y Noticias) --- */
+.product-card {
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
+}
+
+.img-product-destacados {
+    max-height: 170px;
+}
+
+/* Efecto hover sencillo para las tarjetas */
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Ajuste para que la imagen de la noticia no se deforme */
+.img-news {
+    object-fit: cover;
+    width: 200px;
+    min-width: 200px;
+}
+
+.img-border-radius {
+    border-radius: 6px 0 0 6px;
+}
+
+textarea {
+    resize: none;
+}
