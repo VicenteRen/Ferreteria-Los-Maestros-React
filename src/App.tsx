@@ -9,6 +9,9 @@ import ConsejoSeguridad from "./pages/ConsejoSeguridad";
 import CarritoOffcanvas from "./components/organism/CarritoOffCanvas";
 import Checkout from "./pages/Checkout";
 
+// vista del panel de administración
+import Admin from "./pages/Admin";
+
 function App() {
     return (
         <div className="d-flex flex-column min-vh-100">
@@ -25,6 +28,10 @@ function App() {
                     path="/consejos/seguridad"
                     element={<ConsejoSeguridad />}
                 />
+
+                /* Ruta para la vista de Admin */
+                <Route path="/admin" element={<Admin />} />
+                
             </Routes>
 
             <Footer />
