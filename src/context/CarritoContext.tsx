@@ -39,6 +39,12 @@ interface CarritoContextType {
     procesarCompra: () => void; // NUEVO: Función para descontar el stock permanentemente
     totalArticulos: number;
     totalPrecio: number;
+
+    // Funciones para el panel del Administrador
+    agregarProductoAdmin: (producto: ProductoInventario) => void;
+    editarProductoAdmin: (id: number, producto: ProductoInventario) => void;
+    eliminarProductoAdmin: (id: number) => void;
+    sumarStockRapido: (id: number) => void;
 }
 
 export const CarritoContext = createContext<CarritoContextType>(
@@ -127,6 +133,28 @@ export const CarritoProvider = ({ children }: { children: ReactNode }) => {
         setCarrito([]);
     };
 
+    // --- Logica del panel del Administrador ---
+    
+    const agregarProductoAdmin = (nuevoProducto: ProductoInventario) => {
+        // Copiamos el inventario actual y le sumamos el nuevo al final
+        setInventario([...inventario, nuevoProducto]);
+    };
+
+    const editarProductoAdmin = (id: number, productoActualizado: ProductoInventario) => {
+        // Reemplazamos solo el producto que coincida con el ID
+        setInventario(inventario.map(prod => prod.id === id ? productoActualizado : prod));
+    };
+
+    const eliminarProductoAdmin = (id: number) => {
+        // Filtramos para conservar todos menos el que queremos borrar
+        setInventario(inventario.filter(prod => prod.id !== id));
+    };
+
+    const sumarStockRapido = (id: number) => {
+    setInventario(inventario.map(prod => 
+        prod.id === id ? { ...prod, stock: prod.stock + 10 } : prod));
+    };
+
     // --- NUEVO: LÓGICA PARA PROCESAR LA COMPRA Y DESCONTAR STOCK ---
     const procesarCompra = () => {
         // Hacemos una copia del inventario actual
@@ -173,6 +201,11 @@ export const CarritoProvider = ({ children }: { children: ReactNode }) => {
                 procesarCompra,
                 totalArticulos,
                 totalPrecio,
+                agregarProductoAdmin,
+                editarProductoAdmin,
+                eliminarProductoAdmin,
+                sumarStockRapido
+
             }}
         >
             {children}
