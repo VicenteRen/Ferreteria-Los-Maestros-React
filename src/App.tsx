@@ -11,6 +11,9 @@ import Checkout from "./pages/Checkout";
 import Login from "./pages/Login";
 import Registro from "./pages/Registro";
 
+// vista del panel de administración
+import Admin from "./pages/Admin";
+
 function App() {
   const location = useLocation();
 
@@ -34,6 +37,10 @@ function App() {
                     path="/consejos/seguridad"
                     element={<ConsejoSeguridad />}
                 />
+
+                /* Ruta para la vista de Admin */
+                <Route path="/admin" element={<Admin />} />
+                
             </Routes>
 
             {!esPaginaAuth && <Footer />}
