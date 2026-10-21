@@ -2,8 +2,9 @@
 import { useState } from "react";
 import CampoFormulario from "../molecules/CampoFormulario";
 import Boton from "../atoms/Boton";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ModalRecuperarContrasena from "./ModalRecuperarContrasena";
+import { obtenerUsuarios } from "../../services/usuarioService";
 
 const FormularioLogin = () => {
   const [correo, setCorreo] = useState("");
@@ -13,8 +14,9 @@ const FormularioLogin = () => {
     correo: "",
     contrasena: "",
   });
+  const navegar = useNavigate();
 
-  
+
 const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
   e.preventDefault();
 
@@ -23,6 +25,7 @@ const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     contrasena: "",
   };
 
+  // VALIDAR CORREO
   if (correo.trim() === "") {
     nuevosErrores.correo = "El correo electrónico es obligatorio.";
   } else if (correo.trim().length > 100) {
@@ -31,20 +34,60 @@ const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     nuevosErrores.correo = "Ingresa un correo electrónico válido.";
   }
 
+  // VALIDAR CONTRASEÑA
   if (contrasena === "") {
     nuevosErrores.contrasena = "La contraseña es obligatoria.";
   } else if (contrasena.length < 4) {
-    nuevosErrores.contrasena = "La contraseña debe tener al menos 4 caracteres.";
+    nuevosErrores.contrasena =
+      "La contraseña debe tener al menos 4 caracteres.";
   } else if (contrasena.length > 10) {
-    nuevosErrores.contrasena = "La contraseña no puede superar los 10 caracteres.";
+    nuevosErrores.contrasena =
+      "La contraseña no puede superar los 10 caracteres.";
   }
 
   setErrores(nuevosErrores);
 
+  // DETENER SI HAY ERRORES
   if (nuevosErrores.correo || nuevosErrores.contrasena) {
     return;
   }
+
+  // BUSCAR AL USUARIO REGISTRADO
+  const usuario = obtenerUsuarios().find(
+    (item) =>
+      item.correo.toLowerCase() === correo.trim().toLowerCase() &&
+      item.contrasena === contrasena
+  );
+
+  if (!usuario) {
+    setErrores((anterior) => ({
+      ...anterior,
+      contrasena: "Correo o contraseña incorrectos.",
+    }));
+    return;
+  }
+
+  // GUARDAR SESIÓN SIMULADA
+  const sesion = {
+    nombre: usuario.nombre || "Usuario",
+    correo: usuario.correo,
+    rol: usuario.rol,
+  };
+
+  localStorage.removeItem("usuarioSesion");
+  sessionStorage.removeItem("usuarioSesion");
+
+  if (mantenerSesion) {
+    localStorage.setItem("usuarioSesion", JSON.stringify(sesion));
+  } else {
+    sessionStorage.setItem("usuarioSesion", JSON.stringify(sesion));
+  }
+
+  // VOLVER AL INICIO
+  navegar("/");
 };
+  
+
 
 
 const handleCorreoChange = (valor: string) => {
