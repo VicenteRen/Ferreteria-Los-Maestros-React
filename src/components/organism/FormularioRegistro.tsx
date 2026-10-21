@@ -6,6 +6,7 @@ import { validarRun } from "../../utils/validarRun";
 import {existeCorreo,existeRun,registrarCliente,} from "../../services/usuarioService";
 import ModalRegistroExitoso from "./ModalRegistroExitoso";
 import Boton from "../atoms/Boton";
+import { Link } from "react-router-dom";
 
 const FormularioRegistro = () => {
   // ESTADOS DE DATOS PERSONALES
@@ -495,6 +496,31 @@ const FormularioRegistro = () => {
         tipo="submit"
         clasesAdicionales="w-100"
        />
+
+       
+        <div className="d-flex align-items-center gap-3 my-4">
+            <hr className="flex-grow-1" />
+            <span className="text-secondary">o</span>
+            <hr className="flex-grow-1" />
+        </div>
+
+        <p className="text-center text-secondary">
+            ¿Ya tienes cuenta?{" "}
+        <Link
+            to="/login"
+            className="fw-bold text-decoration-underline"
+            style={{ color: "#f45100" }}
+        >
+            Inicia sesión
+        </Link>
+        </p>
+
+        <div className="text-center mt-4">
+            <Link to="/" className="text-secondary text-decoration-none">
+                ← Volver al sitio principal
+            </Link>
+        </div>
+
     </form>
 
     <ModalRegistroExitoso
