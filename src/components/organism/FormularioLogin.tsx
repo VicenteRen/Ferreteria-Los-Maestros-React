@@ -100,6 +100,7 @@ const handleContrasenaChange = (valor: string) => {
         placeholder="correo@empresa.cl"
         onChange={handleCorreoChange}
         error={errores.correo}
+        icono="envelope"
       />
 
       <CampoFormulario
@@ -111,6 +112,7 @@ const handleContrasenaChange = (valor: string) => {
         onChange={handleContrasenaChange}
         error={errores.contrasena}
         mostrarRecuperacion
+        icono="lock"
       />
       
       <div className="form-check mb-4">

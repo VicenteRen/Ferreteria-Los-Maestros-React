@@ -10,6 +10,7 @@ interface CampoFormularioProps {
   error?: string;
   onChange: (valor: string) => void;
   mostrarRecuperacion?: boolean;
+  icono?: string;
 }
 
 const CampoFormulario = ({
@@ -21,6 +22,7 @@ const CampoFormulario = ({
   error = "",
   onChange,
   mostrarRecuperacion = false,
+  icono = "",
 }: CampoFormularioProps) => {
   const [mostrarContrasena, setMostrarContrasena] = useState(false);
 
@@ -47,6 +49,13 @@ const CampoFormulario = ({
       </div>
 
       <div className="position-relative">
+        {icono && (
+          <i
+            className={`bi bi-${icono} position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary`}
+            aria-hidden="true"
+          />
+        )}
+
         <input
           id={id}
           type={esContrasena && mostrarContrasena ? "text" : tipo}
@@ -56,7 +65,10 @@ const CampoFormulario = ({
           value={valor}
           placeholder={placeholder}
           onChange={(e) => onChange(e.target.value)}
-          style={esContrasena ? { paddingRight: "65px" } : undefined}
+          style={{
+            paddingLeft: icono ? "42px" : undefined,
+            paddingRight: esContrasena ? "65px" : undefined,
+          }}
         />
 
         {esContrasena && (
