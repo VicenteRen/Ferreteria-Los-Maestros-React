@@ -8,6 +8,7 @@ import ConsejoTaladro from "./pages/ConsejoTaladro";
 import ConsejoSeguridad from "./pages/ConsejoSeguridad";
 import CarritoOffcanvas from "./components/organism/CarritoOffCanvas";
 import Checkout from "./pages/Checkout";
+import Login from "./pages/Login";
 
 function App() {
   const location = useLocation();
@@ -26,6 +27,7 @@ function App() {
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/detalle/:id" element={<DetalleProducto />} />{" "}
                 <Route path="/consejos/taladro" element={<ConsejoTaladro />} />
+                <Route path="/login" element={<Login/>}/>
                 <Route
                     path="/consejos/seguridad"
                     element={<ConsejoSeguridad />}
