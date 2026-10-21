@@ -11,6 +11,8 @@ interface CampoFormularioProps {
   onChange: (valor: string) => void;
   mostrarRecuperacion?: boolean;
   icono?: string;
+  min?: string;
+  max?: string;
 }
 
 const CampoFormulario = ({
@@ -23,6 +25,8 @@ const CampoFormulario = ({
   onChange,
   mostrarRecuperacion = false,
   icono = "",
+  min = "",
+  max = "",
 }: CampoFormularioProps) => {
   const [mostrarContrasena, setMostrarContrasena] = useState(false);
 
@@ -69,6 +73,8 @@ const CampoFormulario = ({
             paddingLeft: icono ? "42px" : undefined,
             paddingRight: esContrasena ? "65px" : undefined,
           }}
+          min={min}
+          max={max}
         />
 
         {esContrasena && (
