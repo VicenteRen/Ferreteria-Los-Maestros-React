@@ -3,6 +3,9 @@ import { useState } from "react";
 import CampoFormulario from "../molecules/CampoFormulario";
 import { regiones } from "../../data/regiones";
 import { validarRun } from "../../utils/validarRun";
+import {existeCorreo,existeRun,registrarCliente,} from "../../services/usuarioService";
+import ModalRegistroExitoso from "./ModalRegistroExitoso";
+import Boton from "../atoms/Boton";
 
 const FormularioRegistro = () => {
   // ESTADOS DE DATOS PERSONALES
@@ -21,6 +24,9 @@ const FormularioRegistro = () => {
   const [region, setRegion] = useState("");
   const [comuna, setComuna] = useState("");
   const [direccion, setDireccion] = useState("");
+
+  //MODAL
+  const [mostrarModalExito, setMostrarModalExito] = useState(false);
 
   // LÍMITES PARA LA FECHA DE NACIMIENTO
   const hoy = new Date();
@@ -136,9 +142,11 @@ const FormularioRegistro = () => {
 
     // DATOS PERSONALES
     if (run.trim() === "") {
-      nuevosErrores.run = "El RUN es obligatorio.";
+        nuevosErrores.run = "El RUN es obligatorio.";
     } else if (!validarRun(run)) {
-      nuevosErrores.run = "Ingresa un RUN válido.";
+        nuevosErrores.run = "Ingresa un RUN válido.";
+    } else if (existeRun(run)) {
+        nuevosErrores.run = "Este RUN ya está registrado.";
     }
 
     if (nombre.trim() === "") {
@@ -165,12 +173,14 @@ const FormularioRegistro = () => {
 
     // DATOS DE ACCESO
     if (correo.trim() === "") {
-      nuevosErrores.correo = "El correo electrónico es obligatorio.";
+        nuevosErrores.correo = "El correo electrónico es obligatorio.";
     } else if (correo.length > 100) {
-      nuevosErrores.correo =
+        nuevosErrores.correo =
         "El correo no puede superar los 100 caracteres.";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo.trim())) {
-      nuevosErrores.correo = "Ingresa un correo electrónico válido.";
+        nuevosErrores.correo = "Ingresa un correo electrónico válido.";
+    } else if (existeCorreo(correo)) {
+        nuevosErrores.correo = "Este correo electrónico ya está registrado.";
     }
 
     if (contrasena === "") {
@@ -189,7 +199,10 @@ const FormularioRegistro = () => {
     }
 
     if (tipoUsuario === "") {
-      nuevosErrores.tipoUsuario = "Selecciona un tipo de usuario.";
+        nuevosErrores.tipoUsuario = "Selecciona un tipo de usuario.";
+    } else if (tipoUsuario !== "cliente") {
+        nuevosErrores.tipoUsuario =
+        "El registro público permite crear cuentas de cliente.";
     }
 
     // UBICACIÓN
@@ -217,13 +230,36 @@ const FormularioRegistro = () => {
 
     // DETENER EL ENVÍO SI EXISTE ALGÚN ERROR
     if (Object.values(nuevosErrores).some((error) => error !== "")) {
-      return;
+        return;
     }
 
-    // Pendiente: verificar RUN/correo duplicados y guardar al usuario.
+    try {
+        registrarCliente({
+            run: run.replace(/[.-]/g, "").toUpperCase(),
+            nombre: nombre.trim(),
+            apellidos: apellidos.trim(),
+            fechaNacimiento,
+            correo: correo.trim().toLowerCase(),
+            contrasena,
+            region,
+            comuna,
+            direccion: direccion.trim(),
+        });
+
+        setMostrarModalExito(true);
+      } catch (error) {
+        alert(
+            error instanceof Error
+            ? error.message
+            : "No fue posible registrar la cuenta."
+        );
+      }
+
+    
   };
 
   return (
+    <>
     <form onSubmit={handleSubmit} noValidate>
       {/* DATOS PERSONALES */}
       <section className="bg-white border p-4 mb-4">
@@ -340,7 +376,6 @@ const FormularioRegistro = () => {
           >
             <option value="">Selecciona un tipo de usuario</option>
             <option value="cliente">Cliente</option>
-            <option value="vendedor">Vendedor</option>
           </select>
 
           {errores.tipoUsuario && (
@@ -455,10 +490,18 @@ const FormularioRegistro = () => {
         </div>
       </section>
 
-      <button type="submit" className="btn btn-orange w-100">
-        CREAR CUENTA
-      </button>
+      <Boton
+        texto="CREAR CUENTA"
+        tipo="submit"
+        clasesAdicionales="w-100"
+       />
     </form>
+
+    <ModalRegistroExitoso
+      visible={mostrarModalExito}
+      onCerrar={() => setMostrarModalExito(false)}
+    />
+  </>
   );
 };
 
