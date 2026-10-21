@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import CampoFormulario from "../molecules/CampoFormulario";
+import Boton from "../atoms/Boton";
 
 const ModalRecuperarContrasena = () => {
   const [correo, setCorreo] = useState("");
@@ -103,23 +104,23 @@ const ModalRecuperarContrasena = () => {
             )}
 
 
-          <div className="modal-footer">
-            <button
-              type="button"
-              className="btn btn-secondary"
-              data-bs-dismiss="modal"
-            >
-              Cancelar
-            </button>
+            <div className="modal-footer">
+            <Boton
+              texto="Cancelar"
+              variante="btn-secondary"
+              onClick={() => {
+                const botonCerrar = modalRef.current?.querySelector<HTMLButtonElement>(
+                  '[data-bs-dismiss="modal"]'
+                );
 
-            <button
-                type="button"
-                className="btn btn-orange"
-                onClick={handleRecuperar}
-            >
-                Enviar instrucciones
-            </button>
+                botonCerrar?.click();
+              }}
+            />
 
+            <Boton
+              texto="Enviar instrucciones"
+              onClick={handleRecuperar}
+            />
           </div>
         </div>
       </div>
