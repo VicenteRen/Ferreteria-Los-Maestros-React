@@ -145,7 +145,7 @@ const handleContrasenaChange = (valor: string) => {
 
       <p className="text-center text-secondary">
         ¿No tienes cuenta?{" "}
-        <Link to="/registro" className="fw-bold text-decoration-underline">
+        <Link to="/registro" className="fw-bold text-decoration-underline" style={{color: "#f45100" }}>
           Regístrate
         </Link>
       </p>
