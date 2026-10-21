@@ -1,9 +1,45 @@
-import { useContext } from "react";
-import { Link } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { CarritoContext } from "../../context/CarritoContext";
+import Boton from "../atoms/Boton";
 
 const Navbar = () => {
     const { totalArticulos } = useContext(CarritoContext);
+        //AGREGADO PARA MANTENER SESIÓN DEL CLIENTE
+    const navegar = useNavigate();
+    const ubicacion = useLocation();
+
+    const [sesion, setSesion] = useState(() => {
+    return (
+        localStorage.getItem("usuarioSesion") ||
+        sessionStorage.getItem("usuarioSesion")
+    );
+    });
+
+    let nombreUsuario = "Usuario";
+
+    if (sesion) {
+        try {
+            const datosSesion = JSON.parse(sesion);
+            nombreUsuario = datosSesion.nombre || "Usuario";
+        } catch {
+            nombreUsuario = "Usuario";
+        }
+    }
+
+    useEffect(() => {
+        setSesion(
+            localStorage.getItem("usuarioSesion") ||
+            sessionStorage.getItem("usuarioSesion")
+        );
+    }, [ubicacion.pathname]);
+
+    const cerrarSesion = () => {
+    localStorage.removeItem("usuarioSesion");
+    sessionStorage.removeItem("usuarioSesion");
+    setSesion(null);
+    navegar("/");
+    };
 
     return (
         <header>
@@ -71,17 +107,30 @@ const Navbar = () => {
                                     </span>
                                 </a>
                             </li>
+                            
                             <li
                                 className="nav-item ms-lg-3 mt-2 mt-lg-0"
                                 id="menu-sesion"
                             >
-                                <Link
-                                    className="btn btn-orange w-100"
-                                    to="/login"
-                                >
+                                {sesion ? (
+                                 <div className="d-flex flex-column flex-lg-row gap-2">
+                                    <span className="text-white d-flex align-items-center">
+                                        <i className="bi bi-person-circle me-2" aria-hidden="true" />
+                                        Hola, {nombreUsuario}
+                                    </span>
+
+                                    <Boton
+                                        texto="Cerrar sesión"
+                                        onClick={cerrarSesion}
+                                    />
+                                 </div>
+                                ) : (
+                                 <Link className="btn btn-orange w-100" to="/login">
                                     Iniciar Sesión
-                                </Link>
+                                 </Link>
+                                )}
                             </li>
+
                         </ul>
                     </div>
                 </div>

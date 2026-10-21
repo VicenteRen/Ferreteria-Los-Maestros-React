@@ -137,3 +137,9 @@ body {
 textarea {
     resize: none;
 }
+
+/* Evita superponer el icono de error y el ojo */
+.form-control.campo-contrasena.is-invalid {
+  background-image: none;
+  padding-right: 65px;
+}
