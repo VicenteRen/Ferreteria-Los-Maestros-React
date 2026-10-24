@@ -83,8 +83,12 @@ const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     sessionStorage.setItem("usuarioSesion", JSON.stringify(sesion));
   }
 
-  // VOLVER AL INICIO
-  navegar("/");
+  // Redirigir según el rol del usuario.
+  if (usuario.rol === "admin") {
+    navegar("/admin");
+  } else {
+    navegar("/");
+  }
 };
   
 

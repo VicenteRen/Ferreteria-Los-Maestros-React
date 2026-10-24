@@ -17,13 +17,16 @@ const Navbar = () => {
     });
 
     let nombreUsuario = "Usuario";
+    let rolUsuario = "";
 
     if (sesion) {
         try {
             const datosSesion = JSON.parse(sesion);
             nombreUsuario = datosSesion.nombre || "Usuario";
+            rolUsuario = datosSesion.rol || "";
         } catch {
             nombreUsuario = "Usuario";
+            rolUsuario = "";
         }
     }
 
@@ -118,6 +121,16 @@ const Navbar = () => {
                                         <i className="bi bi-person-circle me-2" aria-hidden="true" />
                                         Hola, {nombreUsuario}
                                     </span>
+
+                                    {rolUsuario === "admin" && (
+                                        <Link
+                                            to="/admin"
+                                            className="nav-link text-white d-flex align-items-center gap-2"
+                                        >
+                                            <i className="bi bi-speedometer2" aria-hidden="true"></i>
+                                            Panel administrativo
+                                        </Link>
+                                    )}
 
                                     <Boton
                                         texto="Cerrar sesión"

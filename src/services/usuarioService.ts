@@ -14,18 +14,30 @@ export interface Usuario {
 
 const CLAVE_USUARIOS = "usuarios";
 
+// Cuenta inicial para la demostración académica.
+const ADMIN_DEMO: Usuario = {
+  nombre: "Admin Sistema",
+  correo: "admin@ejemplo.cl",
+  contrasena: "Admin123",
+  rol: "admin",
+};
+
 // Obtiene los usuarios guardados en el navegador.
 export const obtenerUsuarios = (): Usuario[] => {
   const datosGuardados = localStorage.getItem(CLAVE_USUARIOS);
 
   if (!datosGuardados) {
-    return [];
+  return [ADMIN_DEMO];
   }
 
   try {
     const usuarios = JSON.parse(datosGuardados);
 
-    return Array.isArray(usuarios) ? (usuarios as Usuario[]) : [];
+    return Array.isArray(usuarios)
+  ? [ADMIN_DEMO, ...(usuarios as Usuario[]).filter(
+      (usuario) => usuario.correo.toLowerCase() !== ADMIN_DEMO.correo
+    )]
+  : [ADMIN_DEMO];
   } catch {
     return [];
   }
