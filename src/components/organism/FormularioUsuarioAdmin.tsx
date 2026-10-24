@@ -189,11 +189,12 @@ const FormularioUsuarioAdmin = ({ usuarioAEditar, volverATabla, guardarUsuario, 
             </div>
             
             <div className="card-body p-4 bg-white">
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} noValidate>
                     <div className="row g-3 mb-3">
                         <div className="col-md-3">
-                            <label className="form-label fw-bold">RUT *</label>
+                            <label htmlFor="inputRut" className="form-label fw-bold">RUT *</label>
                             <input 
+                                id="inputRut"
                                 type="text" 
                                 className="form-control bg-light" 
                                 placeholder="Ej: 11222333K" 
@@ -206,19 +207,21 @@ const FormularioUsuarioAdmin = ({ usuarioAEditar, volverATabla, guardarUsuario, 
                             {usuarioAEditar && <small className="text-muted">El RUT no se puede modificar.</small>}
                         </div>
                         <div className="col-md-5">
-                            <label className="form-label fw-bold">Nombre Completo *</label>
+                            <label htmlFor="inputNombre" className="form-label fw-bold">Nombre Completo *</label>
                             <input 
+                                id="inputNombre"
                                 type="text" 
                                 className="form-control" 
                                 value={nombreCompleto} 
-                                onChange={handleNombreChange} // AHORA ESTÁ RESTRINGIDO
+                                onChange={handleNombreChange} 
                                 maxLength={50}
                                 required 
                             />
                         </div>
                         <div className="col-md-4">
-                            <label className="form-label fw-bold">Correo Electrónico *</label>
+                            <label htmlFor="inputCorreo" className="form-label fw-bold">Correo Electrónico *</label>
                             <input 
+                                id="inputCorreo"
                                 type="email" 
                                 className="form-control" 
                                 value={correo} 
@@ -231,8 +234,9 @@ const FormularioUsuarioAdmin = ({ usuarioAEditar, volverATabla, guardarUsuario, 
 
                     <div className="row g-3 mb-4">
                         <div className="col-md-3">
-                            <label className="form-label fw-bold">Teléfono</label>
+                            <label htmlFor="inputTelefono" className="form-label fw-bold">Teléfono</label>
                             <input 
+                                id="inputTelefono"
                                 type="text" 
                                 className="form-control" 
                                 placeholder="+56912345678" 
@@ -242,8 +246,9 @@ const FormularioUsuarioAdmin = ({ usuarioAEditar, volverATabla, guardarUsuario, 
                             />
                         </div>
                         <div className="col-md-3">
-                            <label className="form-label fw-bold">Rol en el Sistema *</label>
+                            <label htmlFor="selectRol" className="form-label fw-bold">Rol en el Sistema *</label>
                             <select 
+                                id="selectRol"
                                 className="form-select border-primary" 
                                 value={rol} 
                                 onChange={(e) => setRol(e.target.value as "admin" | "vendedor")}
@@ -254,8 +259,8 @@ const FormularioUsuarioAdmin = ({ usuarioAEditar, volverATabla, guardarUsuario, 
                         </div>
                         
                         <div className="col-md-3">
-                            <label className="form-label fw-bold">Región</label>
-                            <select className="form-select" value={regionSeleccionada} onChange={handleRegionChange}>
+                            <label htmlFor="selectRegion" className="form-label fw-bold">Región</label>
+                            <select id="selectRegion" className="form-select" value={regionSeleccionada} onChange={handleRegionChange}>
                                 <option value="">Seleccione...</option>
                                 {regiones.map((r, index) => (
                                     <option key={index} value={r.nombre}>{r.nombre}</option>
@@ -264,8 +269,8 @@ const FormularioUsuarioAdmin = ({ usuarioAEditar, volverATabla, guardarUsuario, 
                         </div>
                         
                         <div className="col-md-3">
-                            <label className="form-label fw-bold">Comuna</label>
-                            <select className="form-select" value={comunaSeleccionada} onChange={(e) => setComunaSeleccionada(e.target.value)} disabled={!regionSeleccionada}>
+                            <label htmlFor="selectComuna" className="form-label fw-bold">Comuna</label>
+                            <select id="selectComuna" className="form-select" value={comunaSeleccionada} onChange={(e) => setComunaSeleccionada(e.target.value)} disabled={!regionSeleccionada}>
                                 <option value="">Seleccione...</option>
                                 {comunasDisponibles.map((c, index) => (
                                     <option key={index} value={c}>{c}</option>
