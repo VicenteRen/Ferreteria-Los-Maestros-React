@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import Navbar from "./components/organism/Navbar";
 import Footer from "./components/organism/Footer";
 import Inicio from "./pages/Inicio";
@@ -16,6 +16,24 @@ import Admin from "./pages/Admin";
 
 function App() {
   const location = useLocation();
+
+  // Verificar si el usuario conectado es administrador
+    const obtenerRolSesion = () => {
+        const sesionGuardada =
+            localStorage.getItem("usuarioSesion") ||
+            sessionStorage.getItem("usuarioSesion");
+
+        if (!sesionGuardada) return null;
+
+        try {
+            const usuario = JSON.parse(sesionGuardada);
+            return usuario.rol;
+        } catch {
+            return null;
+        }
+    };
+
+const esAdmin = obtenerRolSesion() === "admin";
 
   const esPaginaAuth =
     location.pathname === "/login" ||
@@ -39,7 +57,12 @@ function App() {
                 />
 
                 /* Ruta para la vista de Admin */
-                <Route path="/admin" element={<Admin />} />
+                <Route
+                    path="/admin"
+                    element={
+                        esAdmin ? <Admin /> : <Navigate to="/login" replace />
+                    }
+                />
                 
             </Routes>
 

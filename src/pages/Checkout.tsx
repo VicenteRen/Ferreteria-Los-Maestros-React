@@ -1,4 +1,5 @@
 import { useState, useContext } from "react";
+import { obtenerUsuarios } from "../services/usuarioService";
 import { Link, useNavigate } from "react-router-dom";
 import Boton from "../components/atoms/Boton";
 import FormularioEnvio from "../components/organism/FormularioEnvio";
@@ -6,12 +7,14 @@ import FormularioPago from "../components/organism/FormularioPago";
 import { regiones } from "../data/regiones";
 import { CarritoContext } from "../context/CarritoContext";
 
+
 const Checkout = () => {
     const navigate = useNavigate();
     const { carrito, totalPrecio, procesarCompra } = useContext(CarritoContext);
 
     // Estados Centralizados
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState(() => {
+    const formularioVacio = {
         nombre: "",
         apellidos: "",
         correo: "",
@@ -22,7 +25,38 @@ const Checkout = () => {
         numeroTarjeta: "",
         vencimiento: "",
         cvv: "",
+    };
+    const sesionGuardada =
+        localStorage.getItem("usuarioSesion") ||
+        sessionStorage.getItem("usuarioSesion");
+    
+    if (!sesionGuardada) return formularioVacio;
+
+    try {
+        const sesion = JSON.parse(sesionGuardada);
+
+        if (sesion.rol !== "cliente") return formularioVacio;
+
+        const usuario = obtenerUsuarios().find(
+            (u) => u.correo.toLowerCase() === sesion.correo?.toLowerCase()
+        );
+
+        if (!usuario) return formularioVacio;
+
+        return {
+            ...formularioVacio,
+            nombre: usuario.nombre || "",
+            apellidos: usuario.apellidos || "",
+            correo: usuario.correo,
+            direccion: usuario.direccion || "",
+            region: usuario.region || "",
+            comuna: usuario.comuna || "",
+        };
+        } catch {
+        return formularioVacio;
+        }
     });
+
 
     const [errores, setErrores] = useState({
         nombre: "",
@@ -37,7 +71,13 @@ const Checkout = () => {
         cvv: "",
     });
 
-    const [comunasDisponibles, setComunasDisponibles] = useState<string[]>([]);
+    const [comunasDisponibles, setComunasDisponibles] = useState<string[]>(() => {
+        const regionEncontrada = regiones.find(
+            (region) => region.nombre === formData.region
+        );
+
+        return regionEncontrada?.comunas || [];
+    });
 
     // Funciones manejadoras
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

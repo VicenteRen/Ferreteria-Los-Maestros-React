@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { CarritoContext, type ProductoInventario } from "../context/CarritoContext";
 import TablaProductosAdmin from "../components/organism/TablaProductosAdmin";
@@ -17,7 +17,33 @@ const Admin = () => {
     const [productoAEditar, setProductoAEditar] = useState<ProductoInventario | null>(null);
     const [usuarioAEditar, setUsuarioAEditar] = useState<Colaborador | null>(null);
 
-    const [usuarios, setUsuarios] = useState<Colaborador[]>(usuariosBase);
+    // Clave exclusiva para los administradores y vendedores.
+    const CLAVE_USUARIOS_SISTEMA = "usuariosSistema";
+
+    // Recuperar los usuarios guardados o utilizar los usuarios iniciales.
+    const [usuarios, setUsuarios] = useState<Colaborador[]>(() => {
+        const datosGuardados = localStorage.getItem(CLAVE_USUARIOS_SISTEMA);
+
+        if (!datosGuardados) {
+            return usuariosBase;
+        }
+        
+        try {
+            const usuariosGuardados = JSON.parse(datosGuardados);
+
+            return Array.isArray(usuariosGuardados)
+                ? usuariosGuardados as Colaborador[]
+                : usuariosBase;
+        } catch {
+            return usuariosBase;
+        }
+    });
+
+    // Guardar automáticamente los cambios del CRUD.
+    useEffect(() => {
+        localStorage.setItem(CLAVE_USUARIOS_SISTEMA, JSON.stringify(usuarios));
+    }, [usuarios]);
+
 
     // --- ACCIONES (PRODUCTOS) ---
     const abrirFormularioProducto = (producto: ProductoInventario | null = null) => {
