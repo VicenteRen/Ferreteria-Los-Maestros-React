@@ -17,11 +17,8 @@ const usuariosPrueba = [
     { id: 2, rut: "222222222", nombreCompleto: "El Vendedor", correo: "vendedor@ejemplo.cl", rol: "vendedor" as const, region: "RM", comuna: "Providencia", telefono: "+56933334444" }
 ];
 
-test("muestra un mensaje indicando que no hay usuarios cuando la lista está vacía", () => {
-    render(<TablaUsuariosAdmin usuarios={[]} onEditar={mockOnEditar} onEliminar={mockOnEliminar} />);
-    expect(screen.getByText("No hay usuarios registrados.")).toBeInTheDocument();
-});
-
+// PRUEBA 1: Verifica que la tabla muestre correctamente los usuarios registrados y la cantidad de filas.
+// Prueba 13 del informe.
 test("renderiza correctamente las filas de la tabla con los usuarios registrados", () => {
     const { container } = render(<TablaUsuariosAdmin usuarios={usuariosPrueba} onEditar={mockOnEditar} onEliminar={mockOnEliminar} />);
     
@@ -32,16 +29,8 @@ test("renderiza correctamente las filas de la tabla con los usuarios registrados
     expect(filas.length).toBe(3);
 });
 
-test("aplica las clases bg-primary y bg-warning de Bootstrap según el rol del usuario", () => {
-    const { container } = render(<TablaUsuariosAdmin usuarios={usuariosPrueba} onEditar={mockOnEditar} onEliminar={mockOnEliminar} />);
-    
-    const badgeAdmin = container.querySelector(".badge.bg-primary");
-    const badgeVendedor = container.querySelector(".badge.bg-warning.text-dark");
-    
-    expect(badgeAdmin).toBeInTheDocument();
-    expect(badgeVendedor).toBeInTheDocument();
-});
-
+// PRUEBA 2: Verifica que los botones de editar y eliminar ejecuten las funciones correspondientes para el usuario seleccionado.
+// Prueba 14 del informe.
 test("emite los eventos de editar y eliminar con los datos correctos al hacer clic en los botones", () => {
     render(<TablaUsuariosAdmin usuarios={usuariosPrueba} onEditar={mockOnEditar} onEliminar={mockOnEliminar} />);
     

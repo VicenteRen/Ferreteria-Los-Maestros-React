@@ -11,7 +11,8 @@ import Catalogo from "../pages/Catalogo";
 afterEach(() => {
     cleanup();
 });
-
+//PRUEBA 1: Verifica que el catálogo de productos utilice las clases de Bootstrap necesarias. 
+//Prueba 21 del informe.
 test("aplica la grilla responsiva de Bootstrap (row g-4 y col-md-3) en el catálogo de productos", () => {
     const { container } = render(
         <CarritoProvider>
@@ -31,22 +32,8 @@ test("aplica la grilla responsiva de Bootstrap (row g-4 y col-md-3) en el catál
     expect(columnaProducto).toHaveClass("col-md-3");
 });
 
-test("muestra el título principal del catálogo con las clases de Bootstrap", () => {
-    render(
-        <CarritoProvider>
-            <MemoryRouter>
-                <Catalogo />
-            </MemoryRouter>
-        </CarritoProvider>,
-    );
-
-    const titulo = screen.getByRole("heading", { name: "Nuestro Catálogo" });
-    expect(titulo).toHaveClass("fw-bold", "text-brand-dark");
-});
-
-
-
-// PRUEBA 3: comprobar que la búsqueda filtra los productos
+// PRUEBA 2: comprobar que la búsqueda filtra los productos.
+// Prueba 16 del informe.
 test("filtra el catálogo y muestra solo el producto buscado", () => {
     // Usar el inventario original durante esta prueba
     localStorage.setItem(

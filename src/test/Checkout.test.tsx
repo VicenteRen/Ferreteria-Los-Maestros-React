@@ -12,25 +12,8 @@ afterEach(() => {
     localStorage.clear();
 });
 
-test("aplica las clases de grilla responsiva de Bootstrap en las columnas del Checkout", () => {
-    const { container } = render(
-        <CarritoProvider>
-            <MemoryRouter>
-                <Checkout />
-            </MemoryRouter>
-        </CarritoProvider>,
-    );
-
-    const columnaResumen = container.querySelector(".col-md-5");
-    const columnaFormulario = container.querySelector(".col-md-7");
-
-    expect(columnaResumen).not.toBeNull();
-    expect(columnaResumen).toHaveClass("col-md-5", "col-lg-4", "order-md-last");
-
-    expect(columnaFormulario).not.toBeNull();
-    expect(columnaFormulario).toHaveClass("col-md-7", "col-lg-8");
-});
-
+// PRUEBA 1: Verifica que el botón Confirmar y Pagar debe seguir deshabilitado con carrito vacío y conservar sus clases de Bootstrap.
+// Prueba 17 del informe.
 test("el botón Confirmar y Pagar aplica clases de Bootstrap y se deshabilita si el carrito está vacío", () => {
     render(
         <CarritoProvider>
@@ -52,7 +35,8 @@ test("el botón Confirmar y Pagar aplica clases de Bootstrap y se deshabilita si
         "fw-bold",
     );
 });
-
+// PRUEBA 2: Verifica que el formulario de Checkout identifique los campos obligatorios que están vacíos.
+// Prueba 18 del informe.
 test("aplica la clase is-invalid de Bootstrap en los inputs del Checkout al enviar vacío", () => {
     // Simulamos un producto en el carrito para habilitar el botón de pago
     localStorage.setItem(

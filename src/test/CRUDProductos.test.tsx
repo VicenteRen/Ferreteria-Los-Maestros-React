@@ -67,7 +67,8 @@ afterEach(() => {
     cleanup();
 });
 
-// PRUEBA 1: CREATE
+// PRUEBA 1: CREATE: permite crear un producto.
+// Prueba 08 del informe.
 test("CRUD: permite crear un producto", () => {
     render(
         <CarritoProvider>
@@ -80,7 +81,8 @@ test("CRUD: permite crear un producto", () => {
     expect(screen.getByText("Producto de prueba")).toBeInTheDocument();
 });
 
-// PRUEBA 2: READ
+// PRUEBA 2: READ: muestra los productos del inventario.
+// Prueba 09 del informe.
 test("CRUD: muestra los productos del inventario", () => {
     render(
         <CarritoProvider>
@@ -93,7 +95,8 @@ test("CRUD: muestra los productos del inventario", () => {
     ).toBeInTheDocument();
 });
 
-// PRUEBA 3: UPDATE
+// PRUEBA 3: UPDATE: permite actualizar un producto.
+// Prueba 10 del informe.
 test("CRUD: permite actualizar un producto", () => {
     render(
         <CarritoProvider>
@@ -110,7 +113,8 @@ test("CRUD: permite actualizar un producto", () => {
     ).not.toBeInTheDocument();
 });
 
-// PRUEBA 4: DELETE
+// PRUEBA 4: DELETE: permite eliminar un producto
+// Prueba 11 del informe.
 test("CRUD: permite eliminar un producto", () => {
     render(
         <CarritoProvider>
