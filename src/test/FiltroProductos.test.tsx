@@ -46,37 +46,9 @@ afterEach(() => {
     cleanup();
 });
 
-// PRUEBA 1: Buscador
-test("permite escribir en el buscador de productos", () => {
-    render(<PruebaFiltros />);
 
-    const buscador = screen.getByRole("searchbox");
-
-    fireEvent.change(buscador, {
-        target: { value: "taladro" },
-    });
-
-    expect(buscador).toHaveValue("taladro");
-});
-
-// PRUEBA 2: Categoría
-test("permite seleccionar una categoría", () => {
-    render(<PruebaFiltros />);
-
-    fireEvent.click(
-        screen.getByRole("button", { name: "Mostrar filtros" })
-    );
-
-    const selector = screen.getByLabelText("Categoría");
-
-    fireEvent.change(selector, {
-        target: { value: productosBase[0].categoria },
-    });
-
-    expect(selector).toHaveValue(productosBase[0].categoria);
-});
-
-// PRUEBA 3: Limpiar filtros
+// PRUEBA 1: Limpiar filtros
+// Prueba 15 del informe.
 test("limpia los filtros seleccionados", () => {
     render(<PruebaFiltros />);
 

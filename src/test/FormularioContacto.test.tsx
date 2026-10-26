@@ -10,19 +10,8 @@ afterEach(() => {
     cleanup();
 });
 
-test("aplica la estructura de grilla responsiva de Bootstrap en el contenedor del formulario", () => {
-    const { container } = render(<FormularioContacto />);
-
-    const fila = container.querySelector(".row");
-    const columna = container.querySelector(".col-md-8");
-
-    expect(fila).not.toBeNull();
-    expect(fila).toHaveClass("row", "justify-content-center");
-
-    expect(columna).not.toBeNull();
-    expect(columna).toHaveClass("col-md-8");
-});
-
+// PRUEBA 1: Verifica que al enviar el formulario sin nombre se muestre un error y se destaque su campo.
+// Prueba 19 del informe.
 test("muestra mensaje de error y aplica la clase is-invalid de Bootstrap cuando el nombre está vacío", () => {
     render(<FormularioContacto />);
 

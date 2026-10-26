@@ -13,6 +13,7 @@ afterEach(() => {
 });
 
 // PRUEBA 1: Renderizado
+// Prueba 04 del informe.
 test("muestra el botón CREAR CUENTA en el formulario de Registro", () => {
     render(
         <MemoryRouter>
@@ -26,6 +27,7 @@ test("muestra el botón CREAR CUENTA en el formulario de Registro", () => {
 });
 
 // PRUEBA 2: RUN inválido
+// Prueba 05 del informe.
 test("muestra un error cuando el RUN no es válido", () => {
     render(
         <MemoryRouter>
@@ -45,6 +47,7 @@ test("muestra un error cuando el RUN no es válido", () => {
 });
 
 // PRUEBA 3: Contraseñas diferentes
+// Prueba 06 del informe.
 test("muestra un error cuando las contraseñas no coinciden", () => {
     render(
         <MemoryRouter>

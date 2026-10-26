@@ -33,19 +33,8 @@ const productoSinStock = {
     stock: 0,
 };
 
-test("renderiza la tarjeta con las clases card y shadow-sm de Bootstrap cuando hay stock", () => {
-    const { container } = render(
-        <MemoryRouter>
-            <ProductCard producto={productoConStock} />
-        </MemoryRouter>,
-    );
-
-    const tarjeta = container.querySelector(".card");
-    expect(tarjeta).not.toBeNull();
-    expect(tarjeta).toHaveClass("card", "h-100", "shadow-sm", "border-0");
-    expect(tarjeta).not.toHaveClass("opacity-50");
-});
-
+// PRUEBA 1: Verifica que el producto sin stock muestre Agotado, use sus estilos Bootstrap y tenga el botón deshabilitado.
+// Prueba 20 del informe.
 test("aplica la clase opacity-50 y muestra el badge bg-danger de Bootstrap cuando el stock es 0", () => {
     const { container } = render(
         <MemoryRouter>

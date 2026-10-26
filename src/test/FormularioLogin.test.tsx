@@ -13,6 +13,7 @@ afterEach(() => {
 });
 
 // PRUEBA 1: Renderizado
+// Prueba 01 del informe.
 test("muestra el botón INGRESAR en el formulario de Login", () => {
     render(
         <MemoryRouter>
@@ -26,6 +27,7 @@ test("muestra el botón INGRESAR en el formulario de Login", () => {
 });
 
 // PRUEBA 2: Correo inválido
+// Prueba 02 del informe.
 test("muestra un error cuando el correo no tiene un formato válido", () => {
     render(
         <MemoryRouter>
@@ -45,6 +47,7 @@ test("muestra un error cuando el correo no tiene un formato válido", () => {
 });
 
 // PRUEBA 3: Contraseña obligatoria
+// Prueba 03 del informe.
 test("muestra un error cuando se intenta ingresar sin contraseña", () => {
     render(
         <MemoryRouter>
