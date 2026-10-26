@@ -7,7 +7,6 @@ interface Props {
 }
 
 const FormularioProductoAdmin = ({ productoAEditar, volverATabla }: Props) => {
-    // Traemos también el "inventario" para poder validar los SKUs duplicados
     const { agregarProductoAdmin, editarProductoAdmin, inventario } = useContext(CarritoContext);
 
     // --- ESTADOS DEL FORMULARIO ---
@@ -22,7 +21,6 @@ const FormularioProductoAdmin = ({ productoAEditar, volverATabla }: Props) => {
     const [imagen, setImagen] = useState(""); 
     const [descripcion, setDescripcion] = useState("");
 
-    // --- EFECTO: Si recibimos un producto para editar, llenamos los campos ---
     useEffect(() => {
         if (productoAEditar) {
             setCodigo(productoAEditar.codigo);
@@ -38,32 +36,56 @@ const FormularioProductoAdmin = ({ productoAEditar, volverATabla }: Props) => {
         }
     }, [productoAEditar]);
 
-    // --- MANEJO ESTRICTO DE DESCRIPCIÓN (Bloqueo de caracteres extraños) ---
     const handleDescripcionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         const valorIngresado = e.target.value;
-        // Solo permite letras, números, espacios, tildes, ñ y puntuación básica (.,-())
         if (valorIngresado === "" || /^[a-zA-Z0-9\s.,ñÑáéíóúÁÉÍÓÚüÜ()-]*$/.test(valorIngresado)) {
             setDescripcion(valorIngresado);
         }
     };
 
-    // --- FUNCIÓN AL ENVIAR EL FORMULARIO ---
+    // Función auxiliar para transformar "tExtO eJemPLo" en "Texto ejemplo"
+    const formatearTexto = (texto: string) => {
+        if (!texto) return "";
+        return texto.charAt(0).toUpperCase() + texto.slice(1).toLowerCase();
+    };
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
+        // 1. Limpieza y formateo automático de textos
         const codigoLimpio = codigo.trim().toUpperCase();
-        const nombreLimpio = nombre.trim();
+        const marcaLimpia = marca.trim().toUpperCase(); // Marca siempre en mayúsculas
+        const nombreLimpio = formatearTexto(nombre.trim()); // Primera mayúscula, resto minúscula
+        const categoriaLimpia = formatearTexto(categoria.trim());
+        const subcategoriaLimpia = formatearTexto(subcategoria.trim());
         const imagenLimpia = imagen.trim();
         const descripcionLimpia = descripcion.trim();
 
-        // 1. Validación de campos vacíos
+        const precioNum = Number(precio);
+        const stockNum = Number(stock);
+        const stockMinNum = Number(stockMinimo) || 5;
+
+        // 2. Validación de campos vacíos
         if (!codigoLimpio || !nombreLimpio || !precio || !stock || !imagenLimpia || !descripcionLimpia) {
-            alert("Por favor, llena todos los campos obligatorios (marcados con *).");
+            alert("Por favor llena todos los campos obligatorios (*).");
             return;
         }
 
-        // 2. Validación de SKU Duplicado
-        // Si hay inventario, buscamos si alguien ya tiene este código (excluyendo el producto que editamos)
+        // 3. Validación de Valores Numéricos (Precio >= 1000, Stock > 0)
+        if (precioNum < 1000) {
+            alert("El precio de venta debe ser de al menos $1000.");
+            return;
+        }
+        if (stockNum <= 0) {
+            alert("El stock actual no puede ser 0 ni negativo.");
+            return;
+        }
+        if (stockMinNum < 0) {
+            alert("La alerta de stock mínimo no puede ser un número negativo.");
+            return;
+        }
+
+        // 4. Validación de SKU Duplicado
         if (inventario && inventario.length > 0) {
             const skuDuplicado = inventario.some(
                 p => p.codigo.trim().toUpperCase() === codigoLimpio && (!productoAEditar || p.id !== productoAEditar.id)
@@ -78,15 +100,15 @@ const FormularioProductoAdmin = ({ productoAEditar, volverATabla }: Props) => {
         const productoListo: ProductoInventario = {
             id: productoAEditar ? productoAEditar.id : Date.now(), 
             codigo: codigoLimpio,
-            categoria,
-            subcategoria,
+            categoria: categoriaLimpia,
+            subcategoria: subcategoriaLimpia,
             nombre: nombreLimpio,
-            marca,
+            marca: marcaLimpia,
             unidad: productoAEditar ? productoAEditar.unidad : "Unidad",
             precioCompra: productoAEditar ? productoAEditar.precioCompra : 0, 
-            precio: Number(precio),
-            stock: Number(stock),
-            stockMinimo: Number(stockMinimo) || 5,
+            precio: precioNum,
+            stock: stockNum,
+            stockMinimo: stockMinNum,
             imagen: imagenLimpia,
             descripcion: descripcionLimpia,
         };
@@ -135,7 +157,7 @@ const FormularioProductoAdmin = ({ productoAEditar, volverATabla }: Props) => {
                                 id="inputNombreProd"
                                 type="text" 
                                 className="form-control bg-light" 
-                                placeholder="Ej: Taladro Inalámbrico 20V" 
+                                placeholder="Ej: Taladro inalámbrico 20v" 
                                 value={nombre} 
                                 onChange={(e) => setNombre(e.target.value)} 
                                 required 
@@ -146,10 +168,10 @@ const FormularioProductoAdmin = ({ productoAEditar, volverATabla }: Props) => {
                             <input 
                                 id="inputMarca"
                                 type="text" 
-                                className="form-control bg-light" 
-                                placeholder="Ej: Makita" 
+                                className="form-control bg-light text-uppercase" 
+                                placeholder="Ej: MAKITA" 
                                 value={marca} 
-                                onChange={(e) => setMarca(e.target.value)} 
+                                onChange={(e) => setMarca(e.target.value.toUpperCase())} 
                             />
                         </div>
                         
@@ -182,10 +204,10 @@ const FormularioProductoAdmin = ({ productoAEditar, volverATabla }: Props) => {
                                 id="inputPrecio"
                                 type="number" 
                                 className="form-control border-success" 
-                                placeholder="0" 
+                                placeholder="1000" 
                                 value={precio} 
                                 onChange={(e) => setPrecio(e.target.value)} 
-                                min="0" 
+                                min="1000" 
                                 required 
                             />
                         </div>
@@ -195,10 +217,10 @@ const FormularioProductoAdmin = ({ productoAEditar, volverATabla }: Props) => {
                                 id="inputStock"
                                 type="number" 
                                 className="form-control border-primary" 
-                                placeholder="0" 
+                                placeholder="1" 
                                 value={stock} 
                                 onChange={(e) => setStock(e.target.value)} 
-                                min="0" 
+                                min="1" 
                                 required 
                             />
                         </div>
@@ -226,7 +248,6 @@ const FormularioProductoAdmin = ({ productoAEditar, volverATabla }: Props) => {
                                 onChange={(e) => setImagen(e.target.value)} 
                                 required
                             />
-                            <small className="text-muted">Asegúrate de que la ruta coincida con los archivos de la carpeta public/img.</small>
                         </div>
 
                         <div className="col-md-12">
@@ -240,7 +261,6 @@ const FormularioProductoAdmin = ({ productoAEditar, volverATabla }: Props) => {
                                 onChange={handleDescripcionChange} 
                                 required
                             ></textarea>
-                            <small className="text-muted">Solo se permiten letras, números, espacios y puntuación básica (.,-()).</small>
                         </div>
                     </div>
 
