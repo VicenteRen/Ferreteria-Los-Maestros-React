@@ -1,6 +1,7 @@
-
 import { useState } from "react";
 import type { ProductoInventario } from "../../context/CarritoContext";
+import Input from "../atoms/Input";
+import Icono from "../atoms/Icono";
 
 interface FiltroProductosProps {
     productos: ProductoInventario[];
@@ -40,20 +41,22 @@ const FiltroProductos = ({
         <div className="mb-4">
             <div className="row g-2 align-items-end">
                 <div className="col-md-8">
-                    <label htmlFor="buscar-producto" className="form-label fw-semibold">
+                    <label
+                        htmlFor="buscar-producto"
+                        className="form-label fw-semibold"
+                    >
                         Buscar productos
                     </label>
                     <div className="input-group">
                         <span className="input-group-text">
-                            <i className="bi bi-search" aria-hidden="true" />
+                            <Icono nombre="search" />
                         </span>
-                        <input
+                        <Input
                             id="buscar-producto"
-                            type="search"
-                            className="form-control"
+                            tipo="search"
                             placeholder="Ej. taladro, BOSCH, herramientas..."
-                            value={busqueda}
-                            onChange={(e) => onBusquedaChange(e.target.value)}
+                            valor={busqueda}
+                            onChange={onBusquedaChange}
                         />
                     </div>
                 </div>
@@ -66,7 +69,7 @@ const FiltroProductos = ({
                         aria-controls="filtros-avanzados"
                         onClick={() => setMostrarFiltros(!mostrarFiltros)}
                     >
-                        <i className="bi bi-sliders me-2" aria-hidden="true" />
+                        <Icono nombre="sliders" clasesAdicionales="me-2" />
                         {mostrarFiltros ? "Ocultar filtros" : "Mostrar filtros"}
                     </button>
                 </div>
@@ -79,14 +82,19 @@ const FiltroProductos = ({
                 >
                     <div className="row g-3">
                         <div className="col-md-6">
-                            <label htmlFor="filtro-categoria" className="form-label">
+                            <label
+                                htmlFor="filtro-categoria"
+                                className="form-label"
+                            >
                                 Categoría
                             </label>
                             <select
                                 id="filtro-categoria"
                                 className="form-select"
                                 value={categoria}
-                                onChange={(e) => onCategoriaChange(e.target.value)}
+                                onChange={(e) =>
+                                    onCategoriaChange(e.target.value)
+                                }
                             >
                                 <option value="">Todas las categorías</option>
                                 {categorias.map((opcion) => (
@@ -98,7 +106,10 @@ const FiltroProductos = ({
                         </div>
 
                         <div className="col-md-6">
-                            <label htmlFor="filtro-marca" className="form-label">
+                            <label
+                                htmlFor="filtro-marca"
+                                className="form-label"
+                            >
                                 Marca
                             </label>
                             <select
@@ -117,32 +128,36 @@ const FiltroProductos = ({
                         </div>
 
                         <div className="col-md-6">
-                            <label htmlFor="precio-minimo" className="form-label">
+                            <label
+                                htmlFor="precio-minimo"
+                                className="form-label"
+                            >
                                 Precio mínimo (CLP)
                             </label>
-                            <input
+                            <Input
                                 id="precio-minimo"
-                                type="number"
+                                tipo="number"
                                 min="0"
-                                className="form-control"
                                 placeholder="Sin mínimo"
-                                value={precioMinimo}
-                                onChange={(e) => onPrecioMinimoChange(e.target.value)}
+                                valor={precioMinimo}
+                                onChange={onPrecioMinimoChange}
                             />
                         </div>
 
                         <div className="col-md-6">
-                            <label htmlFor="precio-maximo" className="form-label">
+                            <label
+                                htmlFor="precio-maximo"
+                                className="form-label"
+                            >
                                 Precio máximo (CLP)
                             </label>
-                            <input
+                            <Input
                                 id="precio-maximo"
-                                type="number"
+                                tipo="number"
                                 min="0"
-                                className="form-control"
                                 placeholder="Sin máximo"
-                                value={precioMaximo}
-                                onChange={(e) => onPrecioMaximoChange(e.target.value)}
+                                valor={precioMaximo}
+                                onChange={onPrecioMaximoChange}
                             />
                         </div>
                     </div>
@@ -153,7 +168,10 @@ const FiltroProductos = ({
                             className="btn btn-outline-secondary"
                             onClick={onLimpiar}
                         >
-                            <i className="bi bi-arrow-counterclockwise me-2" aria-hidden="true" />
+                            <Icono
+                                nombre="arrow-counterclockwise"
+                                clasesAdicionales="me-2"
+                            />
                             Limpiar filtros
                         </button>
                     </div>
