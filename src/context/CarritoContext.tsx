@@ -3,6 +3,13 @@ import type { ReactNode } from "react";
 // Importamos los datos estáticos iniciales
 import { productosBase } from "../data/productos";
 
+import {
+    obtenerProductosAPI,
+    crearProductoAPI,
+    actualizarProductoAPI,
+    eliminarProductoAPI,
+} from "../services/productoService";
+
 export interface ProductoCarrito {
     id: number;
     nombre: string;
@@ -13,7 +20,6 @@ export interface ProductoCarrito {
     cantidad: number;
 }
 
-// Interfaz para los productos del inventario general (sin cantidad)
 export interface ProductoInventario {
     id: number;
     codigo: string;
@@ -32,11 +38,11 @@ export interface ProductoInventario {
 
 interface CarritoContextType {
     carrito: ProductoCarrito[];
-    inventario: ProductoInventario[]; // NUEVO: Estado global del inventario
+    inventario: ProductoInventario[]; 
     agregarAlCarrito: (producto: any) => void;
     eliminarDelCarrito: (id: number) => void;
     vaciarCarrito: () => void;
-    procesarCompra: () => void; // NUEVO: Función para descontar el stock permanentemente
+    procesarCompra: () => void; 
     totalArticulos: number;
     totalPrecio: number;
 
@@ -67,7 +73,33 @@ export const CarritoProvider = ({ children }: { children: ReactNode }) => {
             : productosBase;
     });
 
-    // Persistir cambios en LocalStorage
+    // --- CONEXIÓN CON SPRING BOOT ---
+    useEffect(() => {
+        const cargarDesdeBackend = async () => {
+            try {
+                // Consulta los productos al servidor (GET)
+                const datos = await obtenerProductosAPI();
+
+                if (datos.length === 0) {
+                    // Si la BD de MySQL está vacía, sube automáticamente los productos base
+                    const insertados: ProductoInventario[] = [];
+                    for (const prod of productosBase) {
+                        const { id, ...prodSinId } = prod; // Se quita el ID para que MySQL genere uno nuevo (AUTO_INCREMENT)
+                        const guardadoEnBD = await crearProductoAPI(prodSinId);
+                        insertados.push(guardadoEnBD);
+                    }
+                    setInventario(insertados);
+                } else {
+                    setInventario(datos);
+                }
+            } catch (error) {
+                console.warn("Servidor backend apagado. Trabajando en modo local.", error);
+            }
+        };
+
+        cargarDesdeBackend();
+    }, []);
+
     useEffect(() => {
         localStorage.setItem("carritoFerreteria", JSON.stringify(carrito));
     }, [carrito]);
@@ -114,7 +146,6 @@ export const CarritoProvider = ({ children }: { children: ReactNode }) => {
                     return prevCarrito;
                 }
                 alert("¡Producto agregado a tu carrito!");
-                // Ojo aquí: Guardamos en el carrito pero le asociamos el stockReal actualizado
                 return [
                     ...prevCarrito,
                     { ...producto, stock: stockReal, cantidad: 1 },
@@ -136,23 +167,51 @@ export const CarritoProvider = ({ children }: { children: ReactNode }) => {
     // --- Logica del panel del Administrador ---
     
     const agregarProductoAdmin = (nuevoProducto: ProductoInventario) => {
-        // Copiamos el inventario actual y le sumamos el nuevo al final
         setInventario([...inventario, nuevoProducto]);
+
+        // Guardado en MySQL (POST)
+        const { id, ...productoSinId } = nuevoProducto;
+        crearProductoAPI(productoSinId)
+            .then((guardado) => {
+                // Actualiza el ID temporal por el verdadero que dio la base de datos
+                setInventario((prev) => prev.map((p) => p.id === nuevoProducto.id ? guardado : p));
+            })
+            .catch((err) => console.error("Error al crear producto:", err));
     };
 
     const editarProductoAdmin = (id: number, productoActualizado: ProductoInventario) => {
-        // Reemplazamos solo el producto que coincida con el ID
+        // Reemplazamos solo el producto que coincida con el ID 
         setInventario(inventario.map(prod => prod.id === id ? productoActualizado : prod));
+
+        // Actualización en MySQL (PUT)
+        actualizarProductoAPI(id, productoActualizado)
+            .catch((err) => console.error("Error al editar producto:", err));
     };
 
     const eliminarProductoAdmin = (id: number) => {
-        // Filtramos para conservar todos menos el que queremos borrar
+        // Filtramos para conservar todos menos el que queremos borrar 
         setInventario(inventario.filter(prod => prod.id !== id));
+
+        // Borrado en MySQL (DELETE)
+        eliminarProductoAPI(id)
+            .catch((err) => console.error("Error al eliminar producto:", err));
     };
 
     const sumarStockRapido = (id: number) => {
-    setInventario(inventario.map(prod => 
-        prod.id === id ? { ...prod, stock: prod.stock + 10 } : prod));
+        const productoActual = inventario.find((prod) => prod.id === id);
+        if (!productoActual) return;
+
+        const productoConMasStock: ProductoInventario = {
+            ...productoActual,
+            stock: productoActual.stock + 10,
+        };
+
+        // Reemplazamos solo el producto que coincida con el ID 
+        setInventario(inventario.map(prod => prod.id === id ? productoConMasStock : prod));
+
+        // Actualización en MySQL (PUT)
+        actualizarProductoAPI(id, productoConMasStock)
+            .catch((err) => console.error("Error al sumar stock:", err));
     };
 
     // --- NUEVO: LÓGICA PARA PROCESAR LA COMPRA Y DESCONTAR STOCK ---
@@ -172,6 +231,10 @@ export const CarritoProvider = ({ children }: { children: ReactNode }) => {
                 if (nuevoInventario[indexProducto].stock < 0) {
                     nuevoInventario[indexProducto].stock = 0;
                 }
+                
+                // Actualización en MySQL (PUT)
+                actualizarProductoAPI(nuevoInventario[indexProducto].id, nuevoInventario[indexProducto])
+                    .catch((err) => console.error("Error descontando stock:", err));
             }
         });
 
@@ -205,7 +268,6 @@ export const CarritoProvider = ({ children }: { children: ReactNode }) => {
                 editarProductoAdmin,
                 eliminarProductoAdmin,
                 sumarStockRapido
-
             }}
         >
             {children}
