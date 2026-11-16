@@ -12,11 +12,15 @@ import { usuariosBase, type Colaborador } from "../data/usuarios";
 import TablaUsuariosAdmin from "../components/organism/TablaUsuariosAdmin";
 import FormularioUsuarioAdmin from "../components/organism/FormularioUsuarioAdmin";
 
+// NUEVO: Importación del organismo de Mensajes
+import TablaMensajesAdmin from "../components/organism/TablaMensajeAdmin";
+
 const Admin = () => {
     const { inventario } = useContext(CarritoContext);
 
+    // NUEVO: Agregamos "mensajes" a los tipos permitidos del estado vista
     const [vista, setVista] = useState<
-        "productos" | "form-producto" | "usuarios" | "form-usuario"
+        "productos" | "form-producto" | "usuarios" | "form-usuario" | "mensajes"
     >("productos");
 
     const [productoAEditar, setProductoAEditar] =
@@ -147,6 +151,17 @@ const Admin = () => {
                                 <i className="bi bi-people me-2"></i> Usuarios
                             </button>
                         </li>
+
+                        {/* NUEVO: Pestaña de Mensajes agregada debajo de Usuarios */}
+                        <li className="nav-item">
+                            <button
+                                className="nav-link text-dark btn btn-link text-start w-100 text-decoration-none"
+                                onClick={() => setVista("mensajes")}
+                            >
+                                <i className="bi bi-envelope me-2"></i> Mensajes
+                            </button>
+                        </li>
+
                         <hr className="my-3 text-secondary" />
                         <li className="nav-item">
                             <Link className="nav-link text-muted" to="/">
@@ -260,6 +275,9 @@ const Admin = () => {
                                 volverATabla={() => setVista("usuarios")}
                             />
                         )}
+
+                        {/* NUEVO: Renderizado del componente TablaMensajesAdmin */}
+                        {vista === "mensajes" && <TablaMensajesAdmin />}
                     </section>
                 </main>
             </div>

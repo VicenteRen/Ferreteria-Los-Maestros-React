@@ -13,18 +13,25 @@ const FormularioContacto = () => {
         mensaje: "",
     });
 
-    // 3. Estado para saber si el formulario se envió con éxito
+    // 3. Estado para saber si el formulario se envió con éxito (muestra la alerta verde)
     const [enviado, setEnviado] = useState(false);
 
-    // Función que se ejecuta al enviar el formulario
-    const handleSubmit = (e: React.FormEvent) => {
+    // 4. NUEVO: Estado para indicar que la petición está en curso y bloquear el botón
+    const [enviando, setEnviando] = useState(false);
+
+    // Función asíncrona que se ejecuta al enviar el formulario
+    const handleSubmit = async (e: React.FormEvent) => {
         // e.preventDefault() evita que la página recargue, clave en React
         e.preventDefault();
+
+        // Evita otro envío mientras la petición a Spring Boot está en curso
+        if (enviando) return;
 
         // Reseteamos errores previos
         let nuevosErrores = { nombre: "", correo: "", mensaje: "" };
         let hayErrores = false;
 
+        const formatoNombre = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/;
         // Validaciones manuales
         if (nombre.trim() === "") {
             nuevosErrores.nombre = "El nombre es obligatorio.";
@@ -32,6 +39,9 @@ const FormularioContacto = () => {
         } else if (nombre.length > 100) {
             nuevosErrores.nombre =
                 "El nombre no puede superar los 100 caracteres.";
+            hayErrores = true;
+        } else if (!formatoNombre.test(nombre)) {
+            nuevosErrores.nombre = "Solo se admiten letras en este campo.";
             hayErrores = true;
         }
 
@@ -59,17 +69,47 @@ const FormularioContacto = () => {
             return;
         }
 
-        // Si pasa las validaciones, simulamos el envío exitoso
+        // Limpiamos errores previos y bloqueamos el botón antes de llamar al backend
         setErrores({ nombre: "", correo: "", mensaje: "" });
-        setEnviado(true);
+        setEnviando(true);
 
-        // Aquí limpiaríamos el formulario (opcional)
-        setNombre("");
-        setCorreo("");
-        setMensaje("");
+        try {
+            // Envía los datos del formulario al microservicio en Spring Boot
+            const respuesta = await fetch(
+                "http://localhost:8082/api/contactos",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        nombreCompleto: nombre.trim(),
+                        correo: correo.trim(),
+                        mensaje: mensaje.trim(),
+                    }),
+                },
+            );
 
-        // Ocultar mensaje de éxito después de 3 segundos
-        setTimeout(() => setEnviado(false), 3000);
+            // Comprueba que el backend haya aceptado la petición (HTTP 200/201)
+            if (!respuesta.ok) {
+                throw new Error(`Error HTTP ${respuesta.status}`);
+            }
+
+            // Si se guardó en MySQL, mostramos la alerta verde y limpiamos los campos
+            setEnviado(true);
+            setNombre("");
+            setCorreo("");
+            setMensaje("");
+
+            // Ocultar mensaje de éxito después de 3 segundos
+            setTimeout(() => setEnviado(false), 3000);
+        } catch (error) {
+            console.error("Error al enviar el contacto:", error);
+            alert("No se pudo enviar el mensaje. Intente nuevamente.");
+        } finally {
+            // Finaliza el envío y vuelve a habilitar el botón (haya funcionado o fallado)
+            setEnviando(false);
+        }
     };
 
     return (
@@ -104,7 +144,6 @@ const FormularioContacto = () => {
                                 >
                                     Nombre
                                 </label>
-                                {/* Usamos template strings para agregar la clase is-invalid si hay error */}
                                 <input
                                     type="text"
                                     className={`form-control ${errores.nombre ? "is-invalid" : ""}`}
@@ -113,7 +152,6 @@ const FormularioContacto = () => {
                                     value={nombre}
                                     onChange={(e) => setNombre(e.target.value)}
                                 />
-                                {/* Este div solo se muestra si hay un error en el nombre */}
                                 {errores.nombre && (
                                     <div className="invalid-feedback fw-bold">
                                         {errores.nombre}
@@ -168,8 +206,9 @@ const FormularioContacto = () => {
                             <button
                                 type="submit"
                                 className="btn btn-orange w-100 fw-bold"
+                                disabled={enviando}
                             >
-                                Enviar Mensaje
+                                {enviando ? "Enviando..." : "Enviar Mensaje"}
                             </button>
                         </form>
                     </div>
