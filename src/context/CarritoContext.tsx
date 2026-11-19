@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
+import { crearPedidoAPI } from "../services/pedidoService";
 // Importamos los datos estáticos iniciales
 import { productosBase } from "../data/productos";
 
@@ -36,13 +37,24 @@ export interface ProductoInventario {
     descripcion: string;
 }
 
+
+export interface DatosClienteCheckout {
+    nombre: string;
+    apellidos: string;
+    correo: string;
+    direccion: string;
+    region: string;
+    comuna: string;
+}
+
+
 interface CarritoContextType {
     carrito: ProductoCarrito[];
-    inventario: ProductoInventario[]; 
+    inventario: ProductoInventario[];
     agregarAlCarrito: (producto: any) => void;
     eliminarDelCarrito: (id: number) => void;
     vaciarCarrito: () => void;
-    procesarCompra: () => void; 
+    procesarCompra: (datosCliente: DatosClienteCheckout) => Promise<number>;
     totalArticulos: number;
     totalPrecio: number;
 
@@ -165,7 +177,7 @@ export const CarritoProvider = ({ children }: { children: ReactNode }) => {
     };
 
     // --- Logica del panel del Administrador ---
-    
+
     const agregarProductoAdmin = (nuevoProducto: ProductoInventario) => {
         setInventario([...inventario, nuevoProducto]);
 
@@ -180,7 +192,7 @@ export const CarritoProvider = ({ children }: { children: ReactNode }) => {
     };
 
     const editarProductoAdmin = (id: number, productoActualizado: ProductoInventario) => {
-        // Reemplazamos solo el producto que coincida con el ID 
+        // Reemplazamos solo el producto que coincida con el ID
         setInventario(inventario.map(prod => prod.id === id ? productoActualizado : prod));
 
         // Actualización en MySQL (PUT)
@@ -189,7 +201,7 @@ export const CarritoProvider = ({ children }: { children: ReactNode }) => {
     };
 
     const eliminarProductoAdmin = (id: number) => {
-        // Filtramos para conservar todos menos el que queremos borrar 
+        // Filtramos para conservar todos menos el que queremos borrar
         setInventario(inventario.filter(prod => prod.id !== id));
 
         // Borrado en MySQL (DELETE)
@@ -206,7 +218,7 @@ export const CarritoProvider = ({ children }: { children: ReactNode }) => {
             stock: productoActual.stock + 10,
         };
 
-        // Reemplazamos solo el producto que coincida con el ID 
+        // Reemplazamos solo el producto que coincida con el ID
         setInventario(inventario.map(prod => prod.id === id ? productoConMasStock : prod));
 
         // Actualización en MySQL (PUT)
@@ -215,33 +227,51 @@ export const CarritoProvider = ({ children }: { children: ReactNode }) => {
     };
 
     // --- NUEVO: LÓGICA PARA PROCESAR LA COMPRA Y DESCONTAR STOCK ---
-    const procesarCompra = () => {
-        // Hacemos una copia del inventario actual
-        const nuevoInventario = [...inventario];
+    // Registrar una compra completa en MS-Ventas
+    const procesarCompra = async (
+        datosCliente: DatosClienteCheckout
+    ): Promise<number> => {
 
-        // Recorremos lo que el usuario compró
-        carrito.forEach((itemComprado) => {
-            const indexProducto = nuevoInventario.findIndex(
-                (prod) => prod.id === itemComprado.id,
-            );
-            if (indexProducto !== -1) {
-                // Descontamos el stock
-                nuevoInventario[indexProducto].stock -= itemComprado.cantidad;
-                // Nos aseguramos de que no queden números negativos
-                if (nuevoInventario[indexProducto].stock < 0) {
-                    nuevoInventario[indexProducto].stock = 0;
-                }
-                
-                // Actualización en MySQL (PUT)
-                actualizarProductoAPI(nuevoInventario[indexProducto].id, nuevoInventario[indexProducto])
-                    .catch((err) => console.error("Error descontando stock:", err));
-            }
+        if (carrito.length === 0) {
+            throw new Error("El carrito está vacío.");
+        }
+
+        // React envía todo el carrito en un solo pedido.
+        // Ventas calcula los precios y descuenta el stock.
+        const pedido = await crearPedidoAPI({
+            nombreCliente: datosCliente.nombre.trim(),
+            apellidosCliente: datosCliente.apellidos.trim(),
+            correoCliente: datosCliente.correo.trim(),
+            direccionEnvio: datosCliente.direccion.trim(),
+            region: datosCliente.region,
+            comuna: datosCliente.comuna,
+
+            productos: carrito.map((producto) => ({
+                productoId: producto.id,
+                cantidad: producto.cantidad
+            }))
         });
 
-        // Actualizamos el inventario global y vaciamos el carrito
-        setInventario(nuevoInventario);
+        // La compra ya está confirmada en el backend.
         setCarrito([]);
+
+        // Actualizar el catálogo sin volver a descontar stock.
+        try {
+            const productosActualizados =
+                await obtenerProductosAPI();
+
+            setInventario(productosActualizados);
+
+        } catch (error) {
+            console.warn(
+                "Pedido registrado, pero no se pudo refrescar el inventario.",
+                error
+            );
+        }
+
+        return Number(pedido.total);
     };
+
 
     // Cálculos derivados
     const totalArticulos = carrito.reduce(
