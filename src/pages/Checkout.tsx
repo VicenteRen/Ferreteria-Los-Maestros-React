@@ -11,7 +11,8 @@ import { CarritoContext } from "../context/CarritoContext";
 const Checkout = () => {
     const navigate = useNavigate();
     const { carrito, totalPrecio, procesarCompra } = useContext(CarritoContext);
-
+    const [procesando, setProcesando] = useState(false);
+    const [errorCompra, setErrorCompra] = useState("");
     // Estados Centralizados
     const [formData, setFormData] = useState(() => {
     const formularioVacio = {
@@ -102,8 +103,9 @@ const Checkout = () => {
     };
 
     // Validación y Envío
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (procesando) return;
 
         let nuevosErrores = { ...errores };
         let hayErrores = false;
@@ -160,11 +162,38 @@ const Checkout = () => {
             return;
         }
 
-        alert(
-            `¡Pago procesado con éxito!\n\nMuchas gracias por tu compra, ${formData.nombre}.\nHemos enviado el comprobante a tu correo.`,
-        );
-        procesarCompra();
-        navigate("/");
+        setErrorCompra("");
+        setProcesando(true);
+
+        try {
+            const totalConfirmado = await procesarCompra({
+                nombre: formData.nombre,
+                apellidos: formData.apellidos,
+                correo: formData.correo,
+                direccion: formData.direccion,
+                region: formData.region,
+                comuna: formData.comuna
+            });
+
+            alert(
+                `¡Pedido registrado correctamente!\n` +
+                `Total: $${totalConfirmado.toLocaleString("es-CL")}\n` +
+                "El pago fue simulado. No hubo un cobro real."
+            );
+
+            navigate("/");
+
+        } catch (error) {
+            setErrorCompra(
+                error instanceof Error
+                    ? error.message
+                    : "Ocurrió un error al registrar la compra."
+            );
+
+        } finally {
+            setProcesando(false);
+        }
+
     };
 
     return (
@@ -264,12 +293,19 @@ const Checkout = () => {
 
                         <hr className="my-4" />
 
+
+                        {errorCompra && (
+                            <div className="alert alert-danger" role="alert">
+                                {errorCompra}
+                            </div>
+                        )}
+
                         <Boton
-                            texto="Confirmar y Pagar"
+                            texto={procesando ? "Registrando compra..." : "Confirmar y Pagar"}
                             tipo="submit"
                             variante="btn-success"
                             clasesAdicionales="w-100 btn-lg fw-bold"
-                            deshabilitado={carrito.length === 0}
+                            deshabilitado={carrito.length === 0 || procesando}
                         />
                     </form>
                 </div>
