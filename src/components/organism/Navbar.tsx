@@ -5,15 +5,15 @@ import Boton from "../atoms/Boton";
 
 const Navbar = () => {
     const { totalArticulos } = useContext(CarritoContext);
-        //AGREGADO PARA MANTENER SESIÓN DEL CLIENTE
+    //AGREGADO PARA MANTENER SESIÓN DEL CLIENTE
     const navegar = useNavigate();
     const ubicacion = useLocation();
 
     const [sesion, setSesion] = useState(() => {
-    return (
-        localStorage.getItem("usuarioSesion") ||
-        sessionStorage.getItem("usuarioSesion")
-    );
+        return (
+            localStorage.getItem("usuarioSesion") ||
+            sessionStorage.getItem("usuarioSesion")
+        );
     });
 
     let nombreUsuario = "Usuario";
@@ -33,15 +33,15 @@ const Navbar = () => {
     useEffect(() => {
         setSesion(
             localStorage.getItem("usuarioSesion") ||
-            sessionStorage.getItem("usuarioSesion")
+                sessionStorage.getItem("usuarioSesion"),
         );
     }, [ubicacion.pathname]);
 
     const cerrarSesion = () => {
-    localStorage.removeItem("usuarioSesion");
-    sessionStorage.removeItem("usuarioSesion");
-    setSesion(null);
-    navegar("/");
+        localStorage.removeItem("usuarioSesion");
+        sessionStorage.removeItem("usuarioSesion");
+        setSesion(null);
+        navegar("/");
     };
 
     return (
@@ -110,40 +110,48 @@ const Navbar = () => {
                                     </span>
                                 </a>
                             </li>
-                            
+
                             <li
                                 className="nav-item ms-lg-3 mt-2 mt-lg-0"
                                 id="menu-sesion"
                             >
                                 {sesion ? (
-                                 <div className="d-flex flex-column flex-lg-row gap-2">
-                                    <span className="text-white d-flex align-items-center">
-                                        <i className="bi bi-person-circle me-2" aria-hidden="true" />
-                                        Hola, {nombreUsuario}
-                                    </span>
+                                    <div className="d-flex flex-column flex-lg-row gap-2">
+                                        <span className="text-white d-flex align-items-center">
+                                            <i
+                                                className="bi bi-person-circle me-2"
+                                                aria-hidden="true"
+                                            />
+                                            Hola, {nombreUsuario}
+                                        </span>
 
-                                    {rolUsuario === "admin" && (
-                                        <Link
-                                            to="/admin"
-                                            className="nav-link text-white d-flex align-items-center gap-2"
-                                        >
-                                            <i className="bi bi-speedometer2" aria-hidden="true"></i>
-                                            Panel administrativo
-                                        </Link>
-                                    )}
+                                        {rolUsuario === "admin" && (
+                                            <Link
+                                                to="/admin"
+                                                className="nav-link text-white d-flex align-items-center gap-2"
+                                            >
+                                                <i
+                                                    className="bi bi-speedometer2"
+                                                    aria-hidden="true"
+                                                ></i>
+                                                Panel administrativo
+                                            </Link>
+                                        )}
 
-                                    <Boton
-                                        texto="Cerrar sesión"
-                                        onClick={cerrarSesion}
-                                    />
-                                 </div>
+                                        <Boton
+                                            texto="Cerrar sesión"
+                                            onClick={cerrarSesion}
+                                        />
+                                    </div>
                                 ) : (
-                                 <Link className="btn btn-orange w-100" to="/login">
-                                    Iniciar Sesión
-                                 </Link>
+                                    <Link
+                                        className="btn btn-orange w-100"
+                                        to="/login"
+                                    >
+                                        Iniciar Sesión
+                                    </Link>
                                 )}
                             </li>
-
                         </ul>
                     </div>
                 </div>

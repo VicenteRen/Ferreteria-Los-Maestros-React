@@ -7,57 +7,56 @@ import FormularioPago from "../components/organism/FormularioPago";
 import { regiones } from "../data/regiones";
 import { CarritoContext } from "../context/CarritoContext";
 
-
 const Checkout = () => {
     const navigate = useNavigate();
     const { carrito, totalPrecio, procesarCompra } = useContext(CarritoContext);
     const [procesando, setProcesando] = useState(false);
     const [errorCompra, setErrorCompra] = useState("");
+
     // Estados Centralizados
     const [formData, setFormData] = useState(() => {
-    const formularioVacio = {
-        nombre: "",
-        apellidos: "",
-        correo: "",
-        direccion: "",
-        region: "",
-        comuna: "",
-        nombreTarjeta: "",
-        numeroTarjeta: "",
-        vencimiento: "",
-        cvv: "",
-    };
-    const sesionGuardada =
-        localStorage.getItem("usuarioSesion") ||
-        sessionStorage.getItem("usuarioSesion");
-    
-    if (!sesionGuardada) return formularioVacio;
-
-    try {
-        const sesion = JSON.parse(sesionGuardada);
-
-        if (sesion.rol !== "cliente") return formularioVacio;
-
-        const usuario = obtenerUsuarios().find(
-            (u) => u.correo.toLowerCase() === sesion.correo?.toLowerCase()
-        );
-
-        if (!usuario) return formularioVacio;
-
-        return {
-            ...formularioVacio,
-            nombre: usuario.nombre || "",
-            apellidos: usuario.apellidos || "",
-            correo: usuario.correo,
-            direccion: usuario.direccion || "",
-            region: usuario.region || "",
-            comuna: usuario.comuna || "",
+        const formularioVacio = {
+            nombre: "",
+            apellidos: "",
+            correo: "",
+            direccion: "",
+            region: "",
+            comuna: "",
+            nombreTarjeta: "",
+            numeroTarjeta: "",
+            vencimiento: "",
+            cvv: "",
         };
+        const sesionGuardada =
+            localStorage.getItem("usuarioSesion") ||
+            sessionStorage.getItem("usuarioSesion");
+
+        if (!sesionGuardada) return formularioVacio;
+
+        try {
+            const sesion = JSON.parse(sesionGuardada);
+
+            if (sesion.rol !== "cliente") return formularioVacio;
+
+            const usuario = obtenerUsuarios().find(
+                (u) => u.correo.toLowerCase() === sesion.correo?.toLowerCase(),
+            );
+
+            if (!usuario) return formularioVacio;
+
+            return {
+                ...formularioVacio,
+                nombre: usuario.nombre || "",
+                apellidos: usuario.apellidos || "",
+                correo: usuario.correo,
+                direccion: usuario.direccion || "",
+                region: usuario.region || "",
+                comuna: usuario.comuna || "",
+            };
         } catch {
-        return formularioVacio;
+            return formularioVacio;
         }
     });
-
 
     const [errores, setErrores] = useState({
         nombre: "",
@@ -72,18 +71,27 @@ const Checkout = () => {
         cvv: "",
     });
 
-    const [comunasDisponibles, setComunasDisponibles] = useState<string[]>(() => {
-        const regionEncontrada = regiones.find(
-            (region) => region.nombre === formData.region
-        );
+    const [comunasDisponibles, setComunasDisponibles] = useState<string[]>(
+        () => {
+            const regionEncontrada = regiones.find(
+                (region) => region.nombre === formData.region,
+            );
 
-        return regionEncontrada?.comunas || [];
-    });
+            return regionEncontrada?.comunas || [];
+        },
+    );
+
+    const camposSoloLetras = ["nombre", "apellidos", "nombreTarjeta"];
 
     // Funciones manejadoras
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData({ ...formData, [e.target.id]: e.target.value });
-        setErrores({ ...errores, [e.target.id]: "" });
+        const { id, value } = e.target;
+        const valorLimpio = camposSoloLetras.includes(id)
+            ? value.replace(/\d/g, "")
+            : value;
+
+        setFormData({ ...formData, [id]: valorLimpio });
+        setErrores({ ...errores, [id]: "" });
     };
 
     const handleRegionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -110,14 +118,24 @@ const Checkout = () => {
         let nuevosErrores = { ...errores };
         let hayErrores = false;
 
+        const formatoSoloLetras = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/;
+
         if (formData.nombre.trim() === "") {
             nuevosErrores.nombre = "El nombre es obligatorio";
             hayErrores = true;
+        } else if (!formatoSoloLetras.test(formData.nombre.trim())) {
+            nuevosErrores.nombre = "Solo se admiten letras en este campo";
+            hayErrores = true;
         }
+
         if (formData.apellidos.trim() === "") {
             nuevosErrores.apellidos = "Los apellidos son obligatorios";
             hayErrores = true;
+        } else if (!formatoSoloLetras.test(formData.apellidos.trim())) {
+            nuevosErrores.apellidos = "Solo se admiten letras en este campo";
+            hayErrores = true;
         }
+
         if (formData.direccion.trim() === "") {
             nuevosErrores.direccion = "La dirección es obligatoria";
             hayErrores = true;
@@ -143,7 +161,11 @@ const Checkout = () => {
         if (formData.nombreTarjeta.trim() === "") {
             nuevosErrores.nombreTarjeta = "Obligatorio";
             hayErrores = true;
+        } else if (!formatoSoloLetras.test(formData.nombreTarjeta.trim())) {
+            nuevosErrores.nombreTarjeta = "Solo se admiten letras";
+            hayErrores = true;
         }
+
         if (!/^[0-9]{16}$/.test(formData.numeroTarjeta)) {
             nuevosErrores.numeroTarjeta = "16 dígitos numéricos";
             hayErrores = true;
@@ -172,28 +194,25 @@ const Checkout = () => {
                 correo: formData.correo,
                 direccion: formData.direccion,
                 region: formData.region,
-                comuna: formData.comuna
+                comuna: formData.comuna,
             });
 
             alert(
                 `¡Pedido registrado correctamente!\n` +
-                `Total: $${totalConfirmado.toLocaleString("es-CL")}\n` +
-                "El pago fue simulado. No hubo un cobro real."
+                    `Total: $${totalConfirmado.toLocaleString("es-CL")}\n` +
+                    "El pago fue simulado. No hubo un cobro real.",
             );
 
             navigate("/");
-
         } catch (error) {
             setErrorCompra(
                 error instanceof Error
                     ? error.message
-                    : "Ocurrió un error al registrar la compra."
+                    : "Ocurrió un error al registrar la compra.",
             );
-
         } finally {
             setProcesando(false);
         }
-
     };
 
     return (
@@ -293,7 +312,6 @@ const Checkout = () => {
 
                         <hr className="my-4" />
 
-
                         {errorCompra && (
                             <div className="alert alert-danger" role="alert">
                                 {errorCompra}
@@ -301,7 +319,11 @@ const Checkout = () => {
                         )}
 
                         <Boton
-                            texto={procesando ? "Registrando compra..." : "Confirmar y Pagar"}
+                            texto={
+                                procesando
+                                    ? "Registrando compra..."
+                                    : "Confirmar y Pagar"
+                            }
                             tipo="submit"
                             variante="btn-success"
                             clasesAdicionales="w-100 btn-lg fw-bold"
