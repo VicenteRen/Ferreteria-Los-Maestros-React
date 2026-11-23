@@ -31,6 +31,20 @@ export interface RegistroClientePayload {
     direccion: string;
 }
 
+// Separa "Juan Pérez Soto" en { nombre: "Juan", apellidos: "Pérez Soto", nombreCompleto: "Juan Pérez Soto" }
+const dividirNombreCompleto = (nombreCompleto: string) => {
+    const limpio = nombreCompleto.trim().replace(/\s+/g, " ");
+    const partes = limpio.split(" ");
+    const nombre = partes[0] || "";
+    const apellidos = partes.slice(1).join(" ");
+
+    return {
+        nombre,
+        apellidos: apellidos || null,
+        nombreCompleto: limpio,
+    };
+};
+
 // --- FUNCIONES CONECTADAS AL MICROSERVICIO SPRING BOOT (PUERTO 8081) ---
 
 // 1. LOGIN (POST /api/usuarios/login)
@@ -94,13 +108,18 @@ export const listarUsuariosAdmin = async (): Promise<Colaborador[]> => {
 export const crearUsuarioAdmin = async (
     usuario: Omit<Colaborador, "id"> & { contrasena?: string },
 ) => {
+    const payload = {
+        ...usuario,
+        ...dividirNombreCompleto(usuario.nombreCompleto),
+    };
+
     const respuesta = await fetch(API_URL, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
             "X-Usuario-Rol": "admin",
         },
-        body: JSON.stringify(usuario),
+        body: JSON.stringify(payload),
     });
 
     if (!respuesta.ok) {
@@ -116,13 +135,20 @@ export const actualizarUsuarioAdmin = async (
     id: number,
     usuario: Partial<Colaborador>,
 ) => {
+    const payload = usuario.nombreCompleto
+        ? {
+              ...usuario,
+              ...dividirNombreCompleto(usuario.nombreCompleto),
+          }
+        : usuario;
+
     const respuesta = await fetch(`${API_URL}/${id}`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json",
             "X-Usuario-Rol": "admin",
         },
-        body: JSON.stringify(usuario),
+        body: JSON.stringify(payload),
     });
 
     if (!respuesta.ok) {

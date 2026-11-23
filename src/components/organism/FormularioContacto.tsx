@@ -16,8 +16,18 @@ const FormularioContacto = () => {
     // 3. Estado para saber si el formulario se envió con éxito (muestra la alerta verde)
     const [enviado, setEnviado] = useState(false);
 
-    // 4. NUEVO: Estado para indicar que la petición está en curso y bloquear el botón
+    // 4. Estado para indicar que la petición está en curso y bloquear el botón
     const [enviando, setEnviando] = useState(false);
+
+    // Bloquea números mientras el usuario escribe en el campo Nombre
+    const handleNombreChange = (valor: string) => {
+        const sinNumeros = valor.replace(/\d/g, "");
+        setNombre(sinNumeros);
+
+        if (errores.nombre) {
+            setErrores((anterior) => ({ ...anterior, nombre: "" }));
+        }
+    };
 
     // Función asíncrona que se ejecuta al enviar el formulario
     const handleSubmit = async (e: React.FormEvent) => {
@@ -150,7 +160,9 @@ const FormularioContacto = () => {
                                     id="nombre"
                                     placeholder="Tu nombre completo"
                                     value={nombre}
-                                    onChange={(e) => setNombre(e.target.value)}
+                                    onChange={(e) =>
+                                        handleNombreChange(e.target.value)
+                                    }
                                 />
                                 {errores.nombre && (
                                     <div className="invalid-feedback fw-bold">

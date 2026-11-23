@@ -76,14 +76,22 @@ const FormularioRegistro = () => {
         }));
     };
 
-    // VALIDACIÓN DEL NOMBRE MIENTRAS SE ESCRIBE
+    const formatoSoloLetras = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/;
+
+    // VALIDACIÓN DEL NOMBRE MIENTRAS SE ESCRIBE (bloquea números)
     const handleNombreChange = (valor: string) => {
-        setNombre(valor);
+        const sinNumeros = valor.replace(/\d/g, "");
+        setNombre(sinNumeros);
 
         let error = "";
 
-        if (valor.length > 50) {
+        if (sinNumeros.length > 50) {
             error = "El nombre no puede superar los 50 caracteres.";
+        } else if (
+            sinNumeros.trim() !== "" &&
+            !formatoSoloLetras.test(sinNumeros)
+        ) {
+            error = "Solo se admiten letras en este campo.";
         }
 
         setErrores((anterior) => ({
@@ -92,14 +100,20 @@ const FormularioRegistro = () => {
         }));
     };
 
-    // VALIDACIÓN DE APELLIDOS MIENTRAS SE ESCRIBE
+    // VALIDACIÓN DE APELLIDOS MIENTRAS SE ESCRIBE (bloquea números)
     const handleApellidosChange = (valor: string) => {
-        setApellidos(valor);
+        const sinNumeros = valor.replace(/\d/g, "");
+        setApellidos(sinNumeros);
 
         let error = "";
 
-        if (valor.length > 100) {
+        if (sinNumeros.length > 100) {
             error = "Los apellidos no pueden superar los 100 caracteres.";
+        } else if (
+            sinNumeros.trim() !== "" &&
+            !formatoSoloLetras.test(sinNumeros)
+        ) {
+            error = "Solo se admiten letras en este campo.";
         }
 
         setErrores((anterior) => ({
@@ -154,6 +168,8 @@ const FormularioRegistro = () => {
         } else if (nombre.trim().length > 50) {
             nuevosErrores.nombre =
                 "El nombre no puede superar los 50 caracteres.";
+        } else if (!formatoSoloLetras.test(nombre.trim())) {
+            nuevosErrores.nombre = "Solo se admiten letras en este campo.";
         }
 
         if (apellidos.trim() === "") {
@@ -161,6 +177,8 @@ const FormularioRegistro = () => {
         } else if (apellidos.trim().length > 100) {
             nuevosErrores.apellidos =
                 "Los apellidos no pueden superar los 100 caracteres.";
+        } else if (!formatoSoloLetras.test(apellidos.trim())) {
+            nuevosErrores.apellidos = "Solo se admiten letras en este campo.";
         }
 
         if (
