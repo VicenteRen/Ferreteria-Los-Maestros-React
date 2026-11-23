@@ -3,22 +3,22 @@ export interface Colaborador {
     rut: string;
     nombreCompleto: string;
     correo: string;
-    rol: "admin" | "vendedor";
+    rol: "admin" | "vendedor" | "cliente";
     region: string;
     comuna: string;
-    telefono?: string; 
+    telefono?: string;
 }
 
 export const usuariosBase: Colaborador[] = [
     {
         id: 1,
-        rut: "112223334", 
+        rut: "112223334",
         nombreCompleto: "Admin Sistema",
         correo: "admin@ejemplo.cl",
         rol: "admin",
         region: "Región Metropolitana de Santiago",
         comuna: "Santiago",
-        telefono: "+56911112222"
+        telefono: "+56911112222",
     },
     {
         id: 2,
@@ -28,6 +28,6 @@ export const usuariosBase: Colaborador[] = [
         rol: "vendedor",
         region: "Región Metropolitana de Santiago",
         comuna: "Providencia",
-        telefono: "933334444"
-    }
+        telefono: "933334444",
+    },
 ];

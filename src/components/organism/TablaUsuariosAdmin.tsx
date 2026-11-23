@@ -1,4 +1,4 @@
-import { type Colaborador } from "../../data/usuarios"; 
+import { type Colaborador } from "../../data/usuarios";
 
 interface Props {
     usuarios: Colaborador[];
@@ -23,19 +23,25 @@ const TablaUsuariosAdmin = ({ usuarios, onEditar, onEliminar }: Props) => {
                 <tbody>
                     {usuarios.map((usuario) => {
                         // Lógica de colores para los roles corregida (solo admin y vendedor)
-                        const claseRol = usuario.rol === "admin" 
-                            ? "badge bg-primary" 
-                            : "badge bg-warning text-dark";
+                        const claseRol =
+                            usuario.rol === "admin"
+                                ? "badge bg-primary"
+                                : usuario.rol === "vendedor"
+                                  ? "badge bg-warning text-dark"
+                                  : "badge bg-secondary";
 
                         return (
                             <tr key={usuario.id}>
                                 <td className="px-3 fw-bold">{usuario.rut}</td>
-                                <td className="fw-bold">{usuario.nombreCompleto}</td>
+                                <td className="fw-bold">
+                                    {usuario.nombreCompleto}
+                                </td>
                                 <td>{usuario.correo}</td>
                                 <td>
                                     <span className={claseRol}>
                                         {/* Capitalizamos la primera letra del rol */}
-                                        {usuario.rol.charAt(0).toUpperCase() + usuario.rol.slice(1)}
+                                        {usuario.rol.charAt(0).toUpperCase() +
+                                            usuario.rol.slice(1)}
                                     </span>
                                 </td>
                                 <td>{usuario.comuna}</td>
@@ -49,7 +55,9 @@ const TablaUsuariosAdmin = ({ usuarios, onEditar, onEliminar }: Props) => {
                                         </button>
                                         <button
                                             className="btn btn-sm btn-outline-danger"
-                                            onClick={() => onEliminar(usuario.id)}
+                                            onClick={() =>
+                                                onEliminar(usuario.id)
+                                            }
                                         >
                                             <i className="bi bi-trash"></i>
                                         </button>
@@ -60,7 +68,7 @@ const TablaUsuariosAdmin = ({ usuarios, onEditar, onEliminar }: Props) => {
                     })}
                 </tbody>
             </table>
-            
+
             {/* Si no hay usuarios, mostramos un mensaje */}
             {usuarios.length === 0 && (
                 <div className="text-center text-muted py-4">

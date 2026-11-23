@@ -7,18 +7,23 @@ import {
 import TablaProductosAdmin from "../components/organism/TablaProductosAdmin";
 import FormularioProductoAdmin from "../components/organism/FormularioProductoAdmin";
 
-// Importaciones de la sección de Usuarios
-import { usuariosBase, type Colaborador } from "../data/usuarios";
+// Importaciones de la sección de Usuarios conectadas al Microservicio
+import { type Colaborador } from "../data/usuarios";
 import TablaUsuariosAdmin from "../components/organism/TablaUsuariosAdmin";
 import FormularioUsuarioAdmin from "../components/organism/FormularioUsuarioAdmin";
+import {
+    listarUsuariosAdmin,
+    crearUsuarioAdmin,
+    actualizarUsuarioAdmin,
+    eliminarUsuarioAdmin,
+} from "../services/usuarioService";
 
-// NUEVO: Importación del organismo de Mensajes
+// Importación del organismo de Mensajes
 import TablaMensajesAdmin from "../components/organism/TablaMensajeAdmin";
 
 const Admin = () => {
     const { inventario } = useContext(CarritoContext);
 
-    // NUEVO: Agregamos "mensajes" a los tipos permitidos del estado vista
     const [vista, setVista] = useState<
         "productos" | "form-producto" | "usuarios" | "form-usuario" | "mensajes"
     >("productos");
@@ -29,32 +34,22 @@ const Admin = () => {
         null,
     );
 
-    // Clave exclusiva para los administradores y vendedores.
-    const CLAVE_USUARIOS_SISTEMA = "usuariosSistema";
+    // Estado de usuarios obtenidos desde MySQL (Microservicio Usuarios)
+    const [usuarios, setUsuarios] = useState<Colaborador[]>([]);
 
-    // Recuperar los usuarios guardados o utilizar los usuarios iniciales.
-    const [usuarios, setUsuarios] = useState<Colaborador[]>(() => {
-        const datosGuardados = localStorage.getItem(CLAVE_USUARIOS_SISTEMA);
-
-        if (!datosGuardados) {
-            return usuariosBase;
-        }
-
+    const cargarUsuariosDesdeBD = async () => {
         try {
-            const usuariosGuardados = JSON.parse(datosGuardados);
-
-            return Array.isArray(usuariosGuardados)
-                ? (usuariosGuardados as Colaborador[])
-                : usuariosBase;
-        } catch {
-            return usuariosBase;
+            const datos = await listarUsuariosAdmin();
+            setUsuarios(datos);
+        } catch (error) {
+            console.error("Error al cargar usuarios:", error);
         }
-    });
+    };
 
-    // Guardar automáticamente los cambios del CRUD.
+    // Cargar usuarios desde el backend al abrir el panel Admin
     useEffect(() => {
-        localStorage.setItem(CLAVE_USUARIOS_SISTEMA, JSON.stringify(usuarios));
-    }, [usuarios]);
+        cargarUsuariosDesdeBD();
+    }, []);
 
     // --- ACCIONES (PRODUCTOS) ---
     const abrirFormularioProducto = (
@@ -70,22 +65,27 @@ const Admin = () => {
         setVista("form-usuario");
     };
 
-    const guardarUsuario = (nuevoUsuario: Colaborador) => {
-        if (usuarioAEditar) {
-            setUsuarios(
-                usuarios.map((u) =>
-                    u.id === nuevoUsuario.id ? nuevoUsuario : u,
-                ),
+    const guardarUsuario = async (nuevoUsuario: Colaborador) => {
+        try {
+            if (usuarioAEditar) {
+                await actualizarUsuarioAdmin(usuarioAEditar.id, nuevoUsuario);
+                alert("Usuario editado con éxito");
+            } else {
+                await crearUsuarioAdmin(nuevoUsuario);
+                alert("Usuario agregado con éxito");
+            }
+            await cargarUsuariosDesdeBD();
+            setVista("usuarios");
+        } catch (error) {
+            alert(
+                error instanceof Error
+                    ? error.message
+                    : "Error al guardar el usuario en el servidor.",
             );
-            alert("Usuario editado con éxito");
-        } else {
-            setUsuarios([...usuarios, nuevoUsuario]);
-            alert("Usuario agregado con éxito");
         }
-        setVista("usuarios");
     };
 
-    const eliminarUsuario = (id: number) => {
+    const eliminarUsuario = async (id: number) => {
         const usuarioAEliminar = usuarios.find((u) => u.id === id);
 
         // Seguro Anti-Suicidio: Evitar dejar el sistema sin administradores
@@ -106,7 +106,13 @@ const Admin = () => {
                 `¿Estás seguro de que deseas eliminar a ${usuarioAEliminar?.nombreCompleto}?`,
             )
         ) {
-            setUsuarios(usuarios.filter((u) => u.id !== id));
+            try {
+                await eliminarUsuarioAdmin(id);
+                await cargarUsuariosDesdeBD();
+            } catch (error) {
+                console.error(error);
+                alert("No se pudo eliminar el usuario del servidor.");
+            }
         }
     };
 
@@ -151,8 +157,6 @@ const Admin = () => {
                                 <i className="bi bi-people me-2"></i> Usuarios
                             </button>
                         </li>
-
-                        {/* NUEVO: Pestaña de Mensajes agregada debajo de Usuarios */}
                         <li className="nav-item">
                             <button
                                 className="nav-link text-dark btn btn-link text-start w-100 text-decoration-none"
@@ -276,7 +280,6 @@ const Admin = () => {
                             />
                         )}
 
-                        {/* NUEVO: Renderizado del componente TablaMensajesAdmin */}
                         {vista === "mensajes" && <TablaMensajesAdmin />}
                     </section>
                 </main>

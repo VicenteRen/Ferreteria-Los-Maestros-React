@@ -1,4 +1,3 @@
-
 // @vitest-environment jsdom
 import { test, expect, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
@@ -18,7 +17,7 @@ test("muestra el botón INGRESAR en el formulario de Login", () => {
     render(
         <MemoryRouter>
             <FormularioLogin />
-        </MemoryRouter>
+        </MemoryRouter>,
     );
 
     const boton = screen.getByRole("button", { name: "INGRESAR" });
@@ -32,7 +31,7 @@ test("muestra un error cuando el correo no tiene un formato válido", () => {
     render(
         <MemoryRouter>
             <FormularioLogin />
-        </MemoryRouter>
+        </MemoryRouter>,
     );
 
     const campoCorreo = screen.getByPlaceholderText("correo@empresa.cl");
@@ -42,7 +41,7 @@ test("muestra un error cuando el correo no tiene un formato válido", () => {
     });
 
     expect(
-        screen.getByText("Ingresa un correo electrónico válido.")
+        screen.getByText("Ingresa un correo electrónico válido."),
     ).toBeInTheDocument();
 });
 
@@ -52,7 +51,7 @@ test("muestra un error cuando se intenta ingresar sin contraseña", () => {
     render(
         <MemoryRouter>
             <FormularioLogin />
-        </MemoryRouter>
+        </MemoryRouter>,
     );
 
     const campoCorreo = screen.getByPlaceholderText("correo@empresa.cl");
@@ -64,6 +63,6 @@ test("muestra un error cuando se intenta ingresar sin contraseña", () => {
     fireEvent.click(screen.getByRole("button", { name: "INGRESAR" }));
 
     expect(
-        screen.getByText("La contraseña es obligatoria.")
+        screen.getByText("La contraseña es obligatoria."),
     ).toBeInTheDocument();
 });
