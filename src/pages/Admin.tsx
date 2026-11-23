@@ -21,11 +21,14 @@ import {
 // Importación del organismo de Mensajes
 import TablaMensajesAdmin from "../components/organism/TablaMensajeAdmin";
 
+
+import TablaVentasAdmin from "../components/organism/TablaVentasAdmin";
+
 const Admin = () => {
     const { inventario } = useContext(CarritoContext);
 
     const [vista, setVista] = useState<
-        "productos" | "form-producto" | "usuarios" | "form-usuario" | "mensajes"
+        "productos" | "form-producto" | "usuarios" | "form-usuario" | "mensajes" | "ventas"
     >("productos");
 
     const [productoAEditar, setProductoAEditar] =
@@ -166,6 +169,16 @@ const Admin = () => {
                             </button>
                         </li>
 
+                        {/* Pestaña de Gestión de Ventas */}
+                        <li className="nav-item">
+                            <button
+                                className="nav-link text-dark btn btn-link text-start w-100 text-decoration-none"
+                                onClick={() => setVista("ventas")}
+                            >
+                                <i className="bi bi-receipt me-2"></i> Gestión de Ventas
+                            </button>
+                        </li>
+
                         <hr className="my-3 text-secondary" />
                         <li className="nav-item">
                             <Link className="nav-link text-muted" to="/">
@@ -281,6 +294,10 @@ const Admin = () => {
                         )}
 
                         {vista === "mensajes" && <TablaMensajesAdmin />}
+
+
+                        {vista === "ventas" && <TablaVentasAdmin />}
+
                     </section>
                 </main>
             </div>
